@@ -12,13 +12,28 @@
 
 ## M1 — ARexx and message-port foundation
 
-Initial tools:
+### M1.1 — RexxPorts foundation
 
-1. `RexxPorts`
-2. `RexxProbe`
-3. `NodeInfo`
+- [x] Add 68000/AmigaOS 2.04+ build foundation
+- [x] Add shared ABBSTools constants/output helpers
+- [x] Implement `RexxPorts`
+- [x] Add static repository gate
+- [ ] Cross-build with Bebbo `m68k-amigaos-gcc`
+- [ ] Runtime-qualify on AmigaOS baseline
 
-Shared helpers should cover argument parsing, version strings, standardized return codes, ARexx host lifecycle, result/stem formatting and Exec public message-port inspection.
+### M1.2 — RexxProbe
+
+- [ ] Implement `RexxProbe`
+- [ ] Add reusable ARexx message helpers
+- [ ] Define timeout/error behaviour
+- [ ] Add static and runtime qualification
+
+### M1.3 — NodeInfo
+
+- [ ] Establish qualified ABBS node interface
+- [ ] Implement `NodeInfo`
+- [ ] Expose structured ARexx results
+- [ ] Runtime-qualify against ABBS
 
 ## M2 — ABBS node diagnostics
 
