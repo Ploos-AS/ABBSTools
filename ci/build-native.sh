@@ -6,7 +6,7 @@ OUT_DIR="${1:-build/qualification/native}"
 PULL_TIMEOUT="${ABBSTOOLS_DOCKER_PULL_TIMEOUT:-180}"
 BUILD_TIMEOUT="${ABBSTOOLS_DOCKER_BUILD_TIMEOUT:-120}"
 
-mkdir -p "$OUT_DIR"
+mkdir -p "$OUT_DIR" build
 
 printf 'IMAGE=%s\n' "$IMAGE"
 printf 'PULL_TIMEOUT=%ss\n' "$PULL_TIMEOUT"
@@ -25,12 +25,17 @@ echo 'STEP=static-gate'
 python3 tests/check_m1_1.py
 
 echo 'STEP=native-build'
-rm -rf build/common build/rexxports build/RexxPorts
+rm -f build/RexxPorts
 set +e
 timeout "${BUILD_TIMEOUT}s" docker run --rm -v "$PWD:/work" -w /work "$IMAGE" \
-  make CC=m68k-amigaos-gcc \
-       CFLAGS='-Os -Wall -Wextra -Werror -m68000 -fomit-frame-pointer -noixemul' \
-       LDFLAGS='-m68000 -noixemul' all
+  m68k-amigaos-gcc \
+    -Iinclude \
+    -Os -Wall -Wextra -Werror \
+    -m68000 -fomit-frame-pointer -noixemul \
+    -o build/RexxPorts \
+    src/common/output.c \
+    src/tools/rexxports/main.c \
+    -noixemul
 rc=$?
 set -e
 if [[ $rc -ne 0 ]]; then
