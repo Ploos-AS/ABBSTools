@@ -47,8 +47,10 @@ The current AROS boot-ISO contains a `rexxsyslib.library` file, but the guest ca
 
 #### M1.3b — live ABBS node integration
 
-- [ ] Establish qualified ABBS node interface
-- [ ] Replace conservative adapter stub with live node lookup
+- [x] Establish qualified ABBS node public-port naming from existing ABBS door code
+- [x] Replace conservative adapter stub with live Exec public-port lookup
+- [x] Report `PORT`, `PRESENT` and `STATE=ONLINE|OFFLINE`
+- [ ] Establish a qualified interface for current user/session metadata
 - [ ] Expose structured ARexx results
 - [ ] Runtime-qualify idle, connected and invalid node cases against ABBS
 - [ ] Final compatibility qualification on intended AmigaOS 2.04 baseline
