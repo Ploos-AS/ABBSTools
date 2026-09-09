@@ -23,10 +23,11 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: m1-2-native-qualification
+          name: m1-3a-native-qualification
           path: |
             build/qualification/native/RexxPorts
             build/qualification/native/RexxProbe
+            build/qualification/native/NodeInfo
             build/qualification/native/file.txt
             build/qualification/native/checksums.sha256
             build/qualification/native/compiler-version.txt
