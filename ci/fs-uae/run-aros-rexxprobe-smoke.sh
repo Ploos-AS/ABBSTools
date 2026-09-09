@@ -69,12 +69,17 @@ started="$aros_root/abbstools-started.txt"
 
 status=FAIL
 observation=guest_tool_failure
+reason=""
 rc=""
 if [[ -f "$rcfile" ]]; then
   rc="$(tr -d '\r\n ' < "$rcfile")"
 fi
 
-if [[ -f "$started" && -f "$after" && -f "$out" && -f "$rcfile" ]] \
+if [[ -f "$out" ]] && grep -qi 'rexxsyslib.library failed to load' "$out"; then
+  status=SKIP
+  reason=AROS_REXXSYSLIB_NOT_LOADABLE
+  observation=runtime_environment_rexxsyslib_present_but_not_loadable
+elif [[ -f "$started" && -f "$after" && -f "$out" && -f "$rcfile" ]] \
    && grep -q '^PORT_NOT_FOUND' "$out" \
    && [[ "$rc" == "10" ]]; then
   status=PASS
@@ -89,10 +94,13 @@ fi
   echo "REXXSYSLIB=$rexxsyslib"
   echo "FS_UAE_EXIT=$fs_rc"
   echo "REXXPROBE_GUEST_RC=$rc"
+  if [[ -n "$reason" ]]; then
+    echo "REASON=$reason"
+  fi
   echo "OBSERVATION=$observation"
   if [[ -f "$out" ]]; then
     tr -d '\r' < "$out" | sed 's/^/GUEST_REXXPROBE=/'
   fi
 } | tee "$OUT_DIR/result.txt"
 
-[[ "$status" == PASS ]]
+[[ "$status" == PASS || "$status" == SKIP ]]
