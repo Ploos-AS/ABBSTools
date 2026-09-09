@@ -7,7 +7,7 @@
 #include "abbstools/arexx.h"
 #include "abbstools/common.h"
 
-struct Library *RexxSysBase;
+struct RxsLib *RexxSysBase;
 
 static ULONG text_len(const char *text)
 {
@@ -34,14 +34,14 @@ int abt_arexx_send(const char *port_name,
         result->secondary = 0;
     }
 
-    RexxSysBase = OpenLibrary("rexxsyslib.library", 0);
+    RexxSysBase = (struct RxsLib *)OpenLibrary((CONST_STRPTR)RXSNAME, 0);
     if (RexxSysBase == 0) {
         return ABBSTOOLS_AREXX_SETUP_ERROR;
     }
 
     reply_port = CreateMsgPort();
     if (reply_port == 0) {
-        CloseLibrary(RexxSysBase);
+        CloseLibrary((struct Library *)RexxSysBase);
         RexxSysBase = 0;
         return ABBSTOOLS_AREXX_SETUP_ERROR;
     }
@@ -49,7 +49,7 @@ int abt_arexx_send(const char *port_name,
     message = CreateRexxMsg(reply_port, 0, 0);
     if (message == 0) {
         DeleteMsgPort(reply_port);
-        CloseLibrary(RexxSysBase);
+        CloseLibrary((struct Library *)RexxSysBase);
         RexxSysBase = 0;
         return ABBSTOOLS_AREXX_SETUP_ERROR;
     }
@@ -59,7 +59,7 @@ int abt_arexx_send(const char *port_name,
     if (message->rm_Args[0] == 0) {
         DeleteRexxMsg(message);
         DeleteMsgPort(reply_port);
-        CloseLibrary(RexxSysBase);
+        CloseLibrary((struct Library *)RexxSysBase);
         RexxSysBase = 0;
         return ABBSTOOLS_AREXX_SETUP_ERROR;
     }
@@ -75,7 +75,7 @@ int abt_arexx_send(const char *port_name,
         DeleteArgstring(message->rm_Args[0]);
         DeleteRexxMsg(message);
         DeleteMsgPort(reply_port);
-        CloseLibrary(RexxSysBase);
+        CloseLibrary((struct Library *)RexxSysBase);
         RexxSysBase = 0;
         return ABBSTOOLS_AREXX_NO_PORT;
     }
@@ -96,7 +96,7 @@ int abt_arexx_send(const char *port_name,
     DeleteArgstring(message->rm_Args[0]);
     DeleteRexxMsg(message);
     DeleteMsgPort(reply_port);
-    CloseLibrary(RexxSysBase);
+    CloseLibrary((struct Library *)RexxSysBase);
     RexxSysBase = 0;
 
     return rc;
