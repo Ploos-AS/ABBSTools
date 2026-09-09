@@ -80,7 +80,7 @@ int abt_abbs_node_query(ULONG node, struct AbtNodeInfo *info)
     info->user[0] = 0;
 
     Forbid();
-    port = FindPort(info->port);
+    port = FindPort((STRPTR)info->port);
     if (port != 0) {
         info->port_present = 1;
     }
