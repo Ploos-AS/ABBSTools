@@ -56,10 +56,10 @@ Automated qualification consists of:
 
 1. static M1.2 repository checks;
 2. Bebbo `m68k-amigaos-gcc` cross-build with `-m68000 -noixemul` and warnings treated as errors;
-3. FS-UAE + AROS runtime smoke for the deterministic missing-port path.
+3. an FS-UAE + AROS capability/runtime gate for `RexxProbe`.
 
-The AROS smoke executes the actual native `RexxProbe` binary inside the guest, probes a deliberately nonexistent port and requires `PORT_NOT_FOUND` with guest Shell RC 10.
+The first AROS run on 2026-09-09 executed the native `RexxProbe` binary but returned `rexxsyslib.library failed to load`. Inspection of the same AROS boot-ISO environment showed that `rexxsyslib.library` is not present in that minimal core image. This is therefore classified as an environment limitation, not a RexxProbe runtime PASS or a RexxProbe regression.
 
-This runtime gate proves executable startup, `rexxsyslib.library` setup, reply-port/message allocation, public-port lookup, no-port cleanup and Shell return-code behaviour under AROS. It does not yet prove successful message exchange with an ABBS ARexx host.
+The CI gate now checks the extracted AROS image before execution. If `rexxsyslib.library` is absent it records `STATUS=SKIP`, `REASON=AROS_BOOT_ISO_NO_REXXSYSLIB` and exits successfully so unrelated AROS qualification remains useful. If the library is present, the gate executes `RexxProbe` against a deliberately nonexistent port and requires `PORT_NOT_FOUND` with guest Shell RC 10.
 
-Final compatibility qualification on the intended AmigaOS 2.04 baseline remains separate.
+M1.2 runtime qualification remains open until RexxProbe is exercised in an environment that actually provides `rexxsyslib.library`. End-to-end qualification against a deterministic ARexx host and final compatibility qualification on the intended AmigaOS 2.04 baseline remain separate release gates.
