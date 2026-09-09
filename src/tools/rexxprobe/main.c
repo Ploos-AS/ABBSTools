@@ -39,8 +39,18 @@ int main(int argc, char **argv)
     abt_puts(argv[2]);
     abt_puts("\nRESULT1=");
     abt_put_u32((ULONG)result.primary);
-    abt_puts("\nRESULT2=");
-    abt_put_u32((ULONG)result.secondary);
+
+    if (result.primary == 0) {
+        abt_puts("\nRESULT=");
+        if (result.has_text) {
+            abt_puts(result.text);
+        }
+        abt_puts("\nTRUNCATED=");
+        abt_puts(result.truncated ? "1" : "0");
+    } else {
+        abt_puts("\nRESULT2=");
+        abt_put_u32((ULONG)result.secondary);
+    }
     abt_puts("\n");
 
     return rc;
