@@ -30,13 +30,17 @@ jobs:
       - name: Gate 2 - execute RexxPorts inside AROS guest
         run: bash ci/fs-uae/run-aros-rexxports-smoke.sh
 
+      - name: Gate 3 - execute RexxProbe inside AROS guest
+        run: bash ci/fs-uae/run-aros-rexxprobe-smoke.sh
+
       - name: Upload qualification evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: fs-uae-aros-rexxports-qualification
+          name: fs-uae-aros-m1-2-qualification
           path: |
             build/qualification/native/RexxPorts
+            build/qualification/native/RexxProbe
             build/qualification/native/result.txt
             build/fs-uae/aros-system/source.txt
             build/fs-uae/aros-system/archive.sha256
@@ -44,4 +48,8 @@ jobs:
             build/fs-uae/aros-rexxports/fs-uae.log
             build/fs-uae/aros-rexxports/fs-uae-version.txt
             build/fs-uae/aros-rexxports/aros-guest.fs-uae
+            build/fs-uae/aros-rexxprobe/result.txt
+            build/fs-uae/aros-rexxprobe/fs-uae.log
+            build/fs-uae/aros-rexxprobe/fs-uae-version.txt
+            build/fs-uae/aros-rexxprobe/aros-guest.fs-uae
           if-no-files-found: warn
