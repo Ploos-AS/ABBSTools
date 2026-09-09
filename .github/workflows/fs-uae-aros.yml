@@ -18,7 +18,9 @@ jobs:
 
       - name: Install FS-UAE runtime tools
         run: |
-          sudo rm -f /etc/apt/sources.list.d/google-chrome.list
+          while IFS= read -r source; do
+            sudo mv "$source" "$source.disabled"
+          done < <(grep -RIl 'dl.google.com/linux/chrome-stable/deb' /etc/apt/sources.list /etc/apt/sources.list.d 2>/dev/null || true)
           sudo apt-get update
           sudo apt-get install -y fs-uae xvfb curl lhasa file p7zip-full unzip
 
