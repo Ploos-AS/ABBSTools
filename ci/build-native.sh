@@ -24,6 +24,7 @@ timeout 30s docker run --rm "$IMAGE" m68k-amigaos-gcc --version | tee "$OUT_DIR/
 echo 'STEP=static-gates'
 python3 tests/check_m1_1.py
 python3 tests/check_m1_2.py
+python3 tests/check_m1_3a.py
 
 compile_tool() {
   local tool="$1"
@@ -49,10 +50,15 @@ compile_tool RexxProbe \
   src/common/arexx.c \
   src/tools/rexxprobe/main.c
 
+compile_tool NodeInfo \
+  src/common/output.c \
+  src/common/abbs.c \
+  src/tools/nodeinfo/main.c
+
 echo 'STEP=validate-binaries'
 : > "$OUT_DIR/file.txt"
 : > "$OUT_DIR/checksums.sha256"
-for tool in RexxPorts RexxProbe; do
+for tool in RexxPorts RexxProbe NodeInfo; do
   test -s "build/$tool"
   cp "build/$tool" "$OUT_DIR/$tool"
   file "$OUT_DIR/$tool" | tee -a "$OUT_DIR/file.txt"
@@ -65,8 +71,9 @@ done
 
 {
   echo 'STATUS=PASS'
-  echo 'GATE=M1_2_NATIVE_BEBBO'
+  echo 'GATE=M1_3A_NATIVE_BEBBO'
   echo "IMAGE=$IMAGE"
   echo "BINARY_REXXPORTS=$OUT_DIR/RexxPorts"
   echo "BINARY_REXXPROBE=$OUT_DIR/RexxProbe"
+  echo "BINARY_NODEINFO=$OUT_DIR/NodeInfo"
 } | tee "$OUT_DIR/result.txt"
