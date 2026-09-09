@@ -18,7 +18,7 @@ probe = (ROOT / "src/tools/rexxprobe/main.c").read_text()
 makefile = (ROOT / "Makefile").read_text()
 
 checks = {
-    "opens rexxsyslib": "OpenLibrary" in arexx and '"rexxsyslib.library"' in arexx,
+    "opens rexxsyslib": "OpenLibrary" in arexx and ("RXSNAME" in arexx or '"rexxsyslib.library"' in arexx),
     "creates RexxMsg": "CreateRexxMsg" in arexx,
     "creates Argstring": "CreateArgstring" in arexx,
     "finds target port safely": "Forbid();" in arexx and "FindPort" in arexx and "Permit();" in arexx,
