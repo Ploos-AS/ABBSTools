@@ -1,0 +1,44 @@
+name: FS-UAE AROS qualification
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  aros-runtime:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install FS-UAE runtime tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y fs-uae xvfb curl lhasa file p7zip-full unzip
+
+      - name: Gate 1 - native 68000 build
+        run: bash ci/build-native.sh
+
+      - name: Gate 2 - execute RexxPorts inside AROS guest
+        run: bash ci/fs-uae/run-aros-rexxports-smoke.sh
+
+      - name: Upload qualification evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fs-uae-aros-rexxports-qualification
+          path: |
+            build/qualification/native/RexxPorts
+            build/qualification/native/result.txt
+            build/fs-uae/aros-system/source.txt
+            build/fs-uae/aros-system/archive.sha256
+            build/fs-uae/aros-rexxports/result.txt
+            build/fs-uae/aros-rexxports/fs-uae.log
+            build/fs-uae/aros-rexxports/fs-uae-version.txt
+            build/fs-uae/aros-rexxports/aros-guest.fs-uae
+          if-no-files-found: warn
