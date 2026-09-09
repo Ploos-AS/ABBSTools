@@ -29,18 +29,29 @@
 - [x] Define timeout/error behaviour
 - [x] Add static and native qualification
 - [x] Add FS-UAE + AROS RexxProbe capability gate
-- [ ] Runtime-smoke-test `RexxProbe` in an environment with `rexxsyslib.library`
+- [ ] Runtime-smoke-test `RexxProbe` in an environment with loadable `rexxsyslib.library`
 - [ ] End-to-end ARexx reply qualification against a deterministic host
 - [ ] Final compatibility qualification on intended AmigaOS 2.04 baseline
 
-Current AROS boot-ISO qualification environment is useful for native/Exec smoke testing but does not contain `rexxsyslib.library`; the RexxProbe AROS gate therefore records a controlled SKIP rather than claiming runtime PASS.
+The current AROS boot-ISO contains a `rexxsyslib.library` file, but the guest cannot load it in this qualification environment. The RexxProbe AROS gate therefore records a controlled SKIP rather than claiming runtime PASS.
 
 ### M1.3 — NodeInfo
 
+#### M1.3a — public contract and conservative adapter
+
+- [x] Define bounded node data model
+- [x] Add explicit ABBS adapter boundary
+- [x] Add `NodeInfo NODE` CLI and stable machine-readable output
+- [x] Refuse to guess unqualified ABBS internals; return explicit `UNAVAILABLE`/RC 5
+- [x] Add static and native build qualification
+
+#### M1.3b — live ABBS node integration
+
 - [ ] Establish qualified ABBS node interface
-- [ ] Implement `NodeInfo`
+- [ ] Replace conservative adapter stub with live node lookup
 - [ ] Expose structured ARexx results
-- [ ] Runtime-qualify against ABBS
+- [ ] Runtime-qualify idle, connected and invalid node cases against ABBS
+- [ ] Final compatibility qualification on intended AmigaOS 2.04 baseline
 
 ## M2 — ABBS node diagnostics
 
