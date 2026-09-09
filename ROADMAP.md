@@ -28,9 +28,12 @@
 - [x] Add reusable ARexx message helpers
 - [x] Define timeout/error behaviour
 - [x] Add static and native qualification
-- [ ] Runtime-smoke-test `RexxProbe` with FS-UAE + AROS
+- [x] Add FS-UAE + AROS RexxProbe capability gate
+- [ ] Runtime-smoke-test `RexxProbe` in an environment with `rexxsyslib.library`
 - [ ] End-to-end ARexx reply qualification against a deterministic host
 - [ ] Final compatibility qualification on intended AmigaOS 2.04 baseline
+
+Current AROS boot-ISO qualification environment is useful for native/Exec smoke testing but does not contain `rexxsyslib.library`; the RexxProbe AROS gate therefore records a controlled SKIP rather than claiming runtime PASS.
 
 ### M1.3 — NodeInfo
 
