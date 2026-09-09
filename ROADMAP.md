@@ -24,10 +24,13 @@
 
 ### M1.2 — RexxProbe
 
-- [ ] Implement `RexxProbe`
-- [ ] Add reusable ARexx message helpers
-- [ ] Define timeout/error behaviour
-- [ ] Add static and runtime qualification
+- [x] Implement `RexxProbe`
+- [x] Add reusable ARexx message helpers
+- [x] Define timeout/error behaviour
+- [x] Add static and native qualification
+- [ ] Runtime-smoke-test `RexxProbe` with FS-UAE + AROS
+- [ ] End-to-end ARexx reply qualification against a deterministic host
+- [ ] Final compatibility qualification on intended AmigaOS 2.04 baseline
 
 ### M1.3 — NodeInfo
 
@@ -51,6 +54,22 @@ Candidate tools: `DoorInfo`, `DoorCheck`, and ABBS-relevant drop-file inspection
 ## M5 — TCP and remote-node diagnostics
 
 Candidate tools: `TCPInfo`, Telnet diagnostics and integration diagnostics useful with TCP-backed ABBS node setups.
+
+## M6 — Optional observability
+
+Keep observability optional and non-invasive for classic systems. Candidate scope:
+
+- Stable machine-readable output suitable for external collectors
+- Optional host-side exporter/bridge for Prometheus
+- Node availability, session, error and activity metrics where ABBS exposes reliable data
+- No mandatory TCP stack, daemon or Prometheus dependency on the Amiga itself
+- Preserve normal standalone Shell/ARexx operation when observability is unused
+
+Prometheus support is an integration target, not a requirement for using ABBSTools.
+
+## v0.1.0 release target
+
+The first release should contain the useful initial suite rather than only the M1 foundation. Target the implemented and qualified tools from M1 through M5, with M6 observability support included where it is mature enough to remain optional and low-risk.
 
 ## Qualification strategy
 
