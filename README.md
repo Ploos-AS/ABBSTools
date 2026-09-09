@@ -15,29 +15,39 @@ ABBSTools follows the small-tool philosophy: each utility should do one useful j
 - Keep individual tools useful on their own
 - Prefer stable, scriptable output and return codes
 
-## Initial tool set
+## Tools
 
-The first implementation batch is planned as:
+### RexxPorts
 
-- **RexxPorts** — inspect public/ARexx message ports relevant to ABBS operation
+Implemented in M1.1. `RexxPorts` snapshots and lists Exec public message ports, providing a small diagnostic building block for ABBS/ARexx environments.
+
+Planned next:
+
 - **RexxProbe** — send commands to an ARexx/message port and report result/return code
 - **NodeInfo** — inspect ABBS node state and expose it to Shell and ARexx
 
 Future candidates include NodeWatch, NodeCheck, UserInfo, ConfInfo, MsgInfo, FileInfo, LastCalls, DoorInfo, DoorCheck, TCPInfo and BBSDoctor.
 
+## Build
+
+The intended toolchain is Bebbo `m68k-amigaos-gcc`.
+
+```sh
+make check-config
+make
+```
+
+The build defaults to `-m68000 -noixemul`.
+
 ## ARexx design
 
 ARexx is part of the public interface. Tools that expose an ARexx port should follow [docs/AREXX_API.md](docs/AREXX_API.md).
 
-## Build direction
-
-The intended toolchain is Bebbo `m68k-amigaos-gcc` with `-m68000` as the compatibility baseline.
-
 ## Status
 
-The project is currently at **M0 — foundation and interface design**.
+**M1.1 implementation complete; cross-build and runtime qualification remain.**
 
-See [ROADMAP.md](ROADMAP.md).
+See [ROADMAP.md](ROADMAP.md) and [docs/M1_1_IMPLEMENTATION.md](docs/M1_1_IMPLEMENTATION.md).
 
 ## License
 
