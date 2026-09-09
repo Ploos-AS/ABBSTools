@@ -24,6 +24,19 @@ if [[ -z "$startup" ]]; then
 fi
 
 aros_root="$(dirname "$(dirname "$startup")")"
+rexxsyslib="$(find "$aros_root" -type f -iname 'rexxsyslib.library' -print -quit)"
+if [[ -z "$rexxsyslib" ]]; then
+  {
+    echo "STATUS=SKIP"
+    echo "GATE=M1_2_AROS_REXXPROBE_MISSING_PORT"
+    echo "MODEL=A1200"
+    echo "KICKSTART=internal"
+    echo "REASON=AROS_BOOT_ISO_NO_REXXSYSLIB"
+    echo "OBSERVATION=runtime_environment_lacks_rexxsyslib.library"
+  } | tee "$OUT_DIR/result.txt"
+  exit 0
+fi
+
 tool_dir="$aros_root/ABBSToolsTest"
 rm -rf "$tool_dir"
 mkdir -p "$tool_dir"
@@ -73,6 +86,7 @@ fi
   echo "GATE=M1_2_AROS_REXXPROBE_MISSING_PORT"
   echo "MODEL=A1200"
   echo "KICKSTART=internal"
+  echo "REXXSYSLIB=$rexxsyslib"
   echo "FS_UAE_EXIT=$fs_rc"
   echo "REXXPROBE_GUEST_RC=$rc"
   echo "OBSERVATION=$observation"
