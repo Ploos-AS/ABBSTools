@@ -18,8 +18,9 @@
 - [x] Add shared ABBSTools constants/output helpers
 - [x] Implement `RexxPorts`
 - [x] Add static repository gate
-- [ ] Cross-build with Bebbo `m68k-amigaos-gcc`
-- [ ] Runtime-qualify on AmigaOS baseline
+- [x] Cross-build with Bebbo `m68k-amigaos-gcc`
+- [x] Runtime-smoke-test with FS-UAE + AROS
+- [ ] Final compatibility qualification on intended AmigaOS 2.04 baseline
 
 ### M1.2 — RexxProbe
 
