@@ -13,6 +13,7 @@ for path in required:
     if not path.is_file():
         raise SystemExit(f"missing required file: {path.relative_to(ROOT)}")
 
+header = (ROOT / "include/abbstools/arexx.h").read_text()
 arexx = (ROOT / "src/common/arexx.c").read_text()
 probe = (ROOT / "src/tools/rexxprobe/main.c").read_text()
 makefile = (ROOT / "Makefile").read_text()
@@ -25,7 +26,12 @@ checks = {
     "sends message": "PutMsg" in arexx,
     "waits for reply": "WaitPort" in arexx and "GetMsg" in arexx,
     "cleans RexxMsg": "DeleteArgstring" in arexx and "DeleteRexxMsg" in arexx,
+    "models result text": "ABBSTOOLS_AREXX_RESULT_LEN" in header and "has_text" in header and "truncated" in header,
+    "copies result text": "copy_result_text" in arexx,
+    "frees returned result Argstring": "DeleteArgstring(result_text)" in arexx,
+    "separates success text from error secondary": "message->rm_Result1 == 0" in arexx and "result->secondary = message->rm_Result2" in arexx,
     "RexxProbe usage": "Usage: RexxProbe PORT COMMAND" in probe,
+    "RexxProbe prints result text": 'abt_puts("\\nRESULT=")' in probe and "result.text" in probe,
     "RexxProbe target": "RexxProbe" in makefile,
 }
 
