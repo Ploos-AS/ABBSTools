@@ -6,10 +6,13 @@
 #define ABBSTOOLS_ABBS_INTERFACE_UNQUALIFIED 5
 #define ABBSTOOLS_ABBS_NODE_STATE_LEN 32
 #define ABBSTOOLS_ABBS_NODE_USER_LEN 64
+#define ABBSTOOLS_ABBS_NODE_PORT_LEN 40
 
 struct AbtNodeInfo {
     ULONG node;
     UBYTE available;
+    UBYTE port_present;
+    char port[ABBSTOOLS_ABBS_NODE_PORT_LEN];
     char state[ABBSTOOLS_ABBS_NODE_STATE_LEN];
     char user[ABBSTOOLS_ABBS_NODE_USER_LEN];
 };
