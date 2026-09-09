@@ -67,7 +67,11 @@ int main(int argc, char **argv)
         return ABBSTOOLS_RC_ERROR;
     }
 
-    abt_puts("STATUS=OK\nSTATE=");
+    abt_puts("STATUS=OK\nPORT=");
+    abt_puts(info.port);
+    abt_puts("\nPRESENT=");
+    abt_puts(info.port_present ? "1" : "0");
+    abt_puts("\nSTATE=");
     abt_puts(info.state);
     abt_puts("\nUSER=");
     abt_puts(info.user);
