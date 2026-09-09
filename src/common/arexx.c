@@ -20,6 +20,21 @@ static ULONG text_len(const char *text)
     return len;
 }
 
+static void copy_result_text(struct AbtRexxResult *result, const UBYTE *text)
+{
+    ULONG i = 0;
+
+    result->has_text = 1;
+    while (text[i] != 0 && i + 1 < ABBSTOOLS_AREXX_RESULT_LEN) {
+        result->text[i] = (char)text[i];
+        ++i;
+    }
+    result->text[i] = 0;
+    if (text[i] != 0) {
+        result->truncated = 1;
+    }
+}
+
 int abt_arexx_send(const char *port_name,
                    const char *command,
                    struct AbtRexxResult *result)
@@ -27,11 +42,15 @@ int abt_arexx_send(const char *port_name,
     struct MsgPort *reply_port;
     struct MsgPort *target_port;
     struct RexxMsg *message;
+    UBYTE *result_text = 0;
     int rc = ABBSTOOLS_RC_FATAL;
 
     if (result != 0) {
         result->primary = 0;
         result->secondary = 0;
+        result->has_text = 0;
+        result->truncated = 0;
+        result->text[0] = 0;
     }
 
     RexxSysBase = (struct RxsLib *)OpenLibrary((CONST_STRPTR)RXSNAME, 0);
@@ -83,9 +102,19 @@ int abt_arexx_send(const char *port_name,
     WaitPort(reply_port);
     GetMsg(reply_port);
 
+    if (message->rm_Result1 == 0 && message->rm_Result2 != 0) {
+        result_text = (UBYTE *)message->rm_Result2;
+    }
+
     if (result != 0) {
         result->primary = message->rm_Result1;
-        result->secondary = message->rm_Result2;
+        if (message->rm_Result1 == 0) {
+            if (result_text != 0) {
+                copy_result_text(result, result_text);
+            }
+        } else {
+            result->secondary = message->rm_Result2;
+        }
     }
 
     rc = ABBSTOOLS_RC_OK;
@@ -93,6 +122,10 @@ int abt_arexx_send(const char *port_name,
         rc = ABBSTOOLS_RC_WARN;
     }
 
+    if (result_text != 0) {
+        DeleteArgstring(result_text);
+        message->rm_Result2 = 0;
+    }
     DeleteArgstring(message->rm_Args[0]);
     DeleteRexxMsg(message);
     DeleteMsgPort(reply_port);
