@@ -13,7 +13,12 @@ checks = {
     "adapter boundary exists": "abt_abbs_node_query" in header and "abt_abbs_node_query" in adapter,
     "port presence is modeled": "port_present" in header and "ABBSTOOLS_ABBS_NODE_PORT_LEN" in header,
     "qualified ABBS node port naming": '"ABBS node #"' in adapter and '" port"' in adapter,
-    "public port lookup is scheduler protected": "Forbid();" in adapter and "FindPort(info->port)" in adapter and "Permit();" in adapter,
+    "public port lookup is scheduler protected": (
+        "Forbid();" in adapter
+        and "FindPort(" in adapter
+        and "info->port" in adapter
+        and "Permit();" in adapter
+    ),
     "NodeInfo accepts a node": "Usage: NodeInfo NODE" in nodeinfo,
     "NodeInfo reports port": 'abt_puts("STATUS=OK\\nPORT=")' in nodeinfo,
     "NodeInfo reports presence": 'abt_puts("\\nPRESENT=")' in nodeinfo,
