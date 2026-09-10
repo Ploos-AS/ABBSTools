@@ -191,7 +191,7 @@ static void parse_session_line(const char *line, struct AbtNodeInfo *info, UBYTE
     }
 }
 
-static void read_node_session(struct AbtNodeInfo *info)
+static void read_node_session(struct AbtNodeInfo *info, const char *path)
 {
     BPTR fh;
     char line[256];
@@ -205,7 +205,7 @@ static void read_node_session(struct AbtNodeInfo *info)
     info->user[0] = 0;
 
     trace_stage("before-open");
-    fh = Open((STRPTR)info->log, MODE_OLDFILE);
+    fh = Open((STRPTR)path, MODE_OLDFILE);
     trace_stage("after-open");
     if (fh == 0) {
         return;
@@ -244,15 +244,13 @@ static void read_node_session(struct AbtNodeInfo *info)
 static int node_query_impl(ULONG node, struct AbtNodeInfo *info, const char *log_override)
 {
     struct MsgPort *port;
+    const char *session_path;
 
     trace_stage("query-enter");
     if (info == 0 ||
         !build_node_port(node, info->port, sizeof(info->port)) ||
         !build_node_log(node, info->log, sizeof(info->log))) {
         return ABBSTOOLS_ABBS_INTERFACE_UNQUALIFIED;
-    }
-    if (log_override != 0 && log_override[0] != 0) {
-        copy_text(info->log, sizeof(info->log), log_override);
     }
     trace_stage("paths-built");
 
@@ -278,7 +276,8 @@ static int node_query_impl(ULONG node, struct AbtNodeInfo *info, const char *log
     }
     trace_stage("before-session");
 
-    read_node_session(info);
+    session_path = (log_override != 0 && log_override[0] != 0) ? log_override : info->log;
+    read_node_session(info, session_path);
     trace_stage("query-exit");
     return 0;
 }
