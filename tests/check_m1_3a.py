@@ -28,7 +28,11 @@ checks = {
     ),
     "login parser exists": 'find_text(line, " Login: ")' in adapter,
     "logout parser exists": 'find_text(line, " Logout: ")' in adapter,
-    "node log is read-only": "MODE_OLDFILE" in adapter and "FGets(" in adapter,
+    "node log is read-only": (
+        "MODE_OLDFILE" in adapter
+        and "Read(fh," in adapter
+        and "Close(fh);" in adapter
+    ),
     "NodeInfo accepts a node": "Usage: NodeInfo NODE" in nodeinfo,
     "NodeInfo reports port": 'abt_puts("STATUS=OK\\nPORT=")' in nodeinfo,
     "NodeInfo reports presence": 'abt_puts("\\nPRESENT=")' in nodeinfo,
