@@ -26,6 +26,7 @@ python3 tests/check_m1_1.py
 python3 tests/check_m1_2.py
 python3 tests/check_m1_3a.py
 python3 tests/check_m2_1.py
+python3 tests/check_m2_2.py
 
 compile_tool() {
   local tool="$1"
@@ -61,6 +62,11 @@ compile_tool NodeWatch \
   src/common/abbs.c \
   src/tools/nodewatch/main.c
 
+compile_tool NodeCheck \
+  src/common/output.c \
+  src/common/abbs.c \
+  src/tools/nodecheck/main.c
+
 build_trace_tool() {
   local tool="$1"
   local source="$2"
@@ -81,11 +87,12 @@ build_trace_tool() {
 
 build_trace_tool NodeInfo src/tools/nodeinfo/main.c
 build_trace_tool NodeWatch src/tools/nodewatch/main.c
+build_trace_tool NodeCheck src/tools/nodecheck/main.c
 
 echo 'STEP=validate-binaries'
 : > "$OUT_DIR/file.txt"
 : > "$OUT_DIR/checksums.sha256"
-for tool in RexxPorts RexxProbe NodeInfo NodeWatch NodeInfoTrace NodeWatchTrace; do
+for tool in RexxPorts RexxProbe NodeInfo NodeWatch NodeCheck NodeInfoTrace NodeWatchTrace NodeCheckTrace; do
   test -s "build/$tool"
   cp "build/$tool" "$OUT_DIR/$tool"
   file "$OUT_DIR/$tool" | tee -a "$OUT_DIR/file.txt"
@@ -98,12 +105,14 @@ done
 
 {
   echo 'STATUS=PASS'
-  echo 'GATE=M2_1_NATIVE_BEBBO'
+  echo 'GATE=M2_2_NATIVE_BEBBO'
   echo "IMAGE=$IMAGE"
   echo "BINARY_REXXPORTS=$OUT_DIR/RexxPorts"
   echo "BINARY_REXXPROBE=$OUT_DIR/RexxProbe"
   echo "BINARY_NODEINFO=$OUT_DIR/NodeInfo"
   echo "BINARY_NODEWATCH=$OUT_DIR/NodeWatch"
+  echo "BINARY_NODECHECK=$OUT_DIR/NodeCheck"
   echo "BINARY_NODEINFO_TRACE=$OUT_DIR/NodeInfoTrace"
   echo "BINARY_NODEWATCH_TRACE=$OUT_DIR/NodeWatchTrace"
+  echo "BINARY_NODECHECK_TRACE=$OUT_DIR/NodeCheckTrace"
 } | tee "$OUT_DIR/result.txt"
