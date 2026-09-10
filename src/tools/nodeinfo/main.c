@@ -4,11 +4,19 @@
 #include "abbstools/abbs.h"
 #include "abbstools/common.h"
 
+#ifdef ABBSTOOLS_CI_TRACE
+extern int abt_abbs_node_query_trace(ULONG node, struct AbtNodeInfo *info, const char *log_path);
+#endif
+
 static void usage(void)
 {
     abt_puts("NodeInfo 0.1\n");
     abt_puts("ABBSTools - Ploos AS\n\n");
+#ifdef ABBSTOOLS_CI_TRACE
+    abt_puts("Usage: NodeInfo NODE [CI_LOG_PATH]\n");
+#else
     abt_puts("Usage: NodeInfo NODE\n");
+#endif
 }
 
 static int parse_node(const char *text, ULONG *node)
@@ -56,12 +64,24 @@ int main(int argc, char **argv)
     ULONG node;
     int rc;
 
+#ifdef ABBSTOOLS_CI_TRACE
+    if ((argc != 2 && argc != 3) || !parse_node(argv[1], &node)) {
+#else
     if (argc != 2 || !parse_node(argv[1], &node)) {
+#endif
         usage();
         return ABBSTOOLS_RC_ERROR;
     }
 
+#ifdef ABBSTOOLS_CI_TRACE
+    if (argc == 3) {
+        rc = abt_abbs_node_query_trace(node, &info, argv[2]);
+    } else {
+        rc = abt_abbs_node_query(node, &info);
+    }
+#else
     rc = abt_abbs_node_query(node, &info);
+#endif
 
     abt_puts("NODE=");
     abt_put_u32(node);
