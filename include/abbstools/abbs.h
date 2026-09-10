@@ -7,12 +7,20 @@
 #define ABBSTOOLS_ABBS_NODE_STATE_LEN 32
 #define ABBSTOOLS_ABBS_NODE_USER_LEN 64
 #define ABBSTOOLS_ABBS_NODE_PORT_LEN 40
+#define ABBSTOOLS_ABBS_NODE_LOG_LEN 40
+
+#define ABBSTOOLS_SESSION_UNKNOWN 0
+#define ABBSTOOLS_SESSION_IDLE 1
+#define ABBSTOOLS_SESSION_ACTIVE 2
 
 struct AbtNodeInfo {
     ULONG node;
     UBYTE available;
     UBYTE port_present;
+    UBYTE log_present;
+    UBYTE session_state;
     char port[ABBSTOOLS_ABBS_NODE_PORT_LEN];
+    char log[ABBSTOOLS_ABBS_NODE_LOG_LEN];
     char state[ABBSTOOLS_ABBS_NODE_STATE_LEN];
     char user[ABBSTOOLS_ABBS_NODE_USER_LEN];
 };
