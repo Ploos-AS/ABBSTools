@@ -77,14 +77,22 @@ The current AROS boot-ISO contains a `rexxsyslib.library` file, but the guest ca
 
 ### M2.2 — NodeCheck
 
-- [ ] Define deterministic node health-check contract and return-code semantics
-- [ ] Reuse the qualified NodeInfo/ABBS adapter
-- [ ] Implement stable machine-readable diagnostics
+- [x] Define deterministic node health-check contract and return-code semantics
+- [x] Reuse the qualified NodeInfo/ABBS adapter
+- [x] Implement stable machine-readable diagnostics
+- [x] Add static and native-build gates
+- [x] Add FS-UAE + AROS deterministic runtime smoke
+- [ ] Qualify against live ABBS on intended AmigaOS 2.04 baseline
+
+### M2.3 — AssignCheck
+
+- [ ] Define conservative ABBS assign/volume checks without undocumented layout assumptions
+- [ ] Implement stable machine-readable diagnostics for `BBS:` and `ABBS:`
 - [ ] Add static and native-build gates
 - [ ] Add FS-UAE + AROS deterministic runtime smoke
 - [ ] Qualify against live ABBS on intended AmigaOS 2.04 baseline
 
-Remaining M2 candidate tools: `AssignCheck`, `BBSDoctor`.
+Remaining M2 candidate tool: `BBSDoctor`.
 
 ## M3 — Users, conferences and logs
 
