@@ -5,6 +5,38 @@
 
 #include "abbstools/abbs.h"
 
+#ifdef ABBSTOOLS_CI_TRACE
+static void trace_stage(const char *name)
+{
+    char path[96];
+    ULONG i = 0;
+    ULONG p = 0;
+    BPTR fh;
+
+    while ("SYS:abbstools-nodeinfo-internal-"[i] != 0 && p + 1 < sizeof(path)) {
+        path[p++] = "SYS:abbstools-nodeinfo-internal-"[i++];
+    }
+    i = 0;
+    while (name[i] != 0 && p + 5 < sizeof(path)) {
+        path[p++] = name[i++];
+    }
+    path[p++] = '.';
+    path[p++] = 't';
+    path[p++] = 'x';
+    path[p++] = 't';
+    path[p] = 0;
+
+    fh = Open((STRPTR)path, MODE_NEWFILE);
+    if (fh != 0) {
+        static const char marker[] = "1\n";
+        Write(fh, (APTR)marker, 2);
+        Close(fh);
+    }
+}
+#else
+#define trace_stage(name) ((void)0)
+#endif
+
 static void copy_text(char *dst, ULONG size, const char *src)
 {
     ULONG i = 0;
@@ -172,12 +204,15 @@ static void read_node_session(struct AbtNodeInfo *info)
     info->session_state = ABBSTOOLS_SESSION_UNKNOWN;
     info->user[0] = 0;
 
+    trace_stage("before-open");
     fh = Open((STRPTR)info->log, MODE_OLDFILE);
+    trace_stage("after-open");
     if (fh == 0) {
         return;
     }
 
     info->log_present = 1;
+    trace_stage("before-read");
     while ((got = Read(fh, &ch, 1)) == 1) {
         if (ch == '\n' || len + 1 >= sizeof(line)) {
             line[len] = 0;
@@ -190,12 +225,15 @@ static void read_node_session(struct AbtNodeInfo *info)
             line[len++] = ch;
         }
     }
+    trace_stage("after-read");
 
     if (len != 0) {
         line[len] = 0;
         parse_session_line(line, info, &saw_event);
     }
+    trace_stage("before-close");
     Close(fh);
+    trace_stage("after-close");
 
     if (!saw_event) {
         info->session_state = ABBSTOOLS_SESSION_UNKNOWN;
@@ -207,29 +245,37 @@ int abt_abbs_node_query(ULONG node, struct AbtNodeInfo *info)
 {
     struct MsgPort *port;
 
+    trace_stage("query-enter");
     if (info == 0 ||
         !build_node_port(node, info->port, sizeof(info->port)) ||
         !build_node_log(node, info->log, sizeof(info->log))) {
         return ABBSTOOLS_ABBS_INTERFACE_UNQUALIFIED;
     }
+    trace_stage("paths-built");
 
     info->node = node;
     info->available = 1;
     info->port_present = 0;
 
+    trace_stage("before-forbid");
     Forbid();
+    trace_stage("after-forbid");
     port = FindPort((STRPTR)info->port);
+    trace_stage("after-findport");
     if (port != 0) {
         info->port_present = 1;
     }
     Permit();
+    trace_stage("after-permit");
 
     if (info->port_present) {
         copy_text(info->state, sizeof(info->state), "ONLINE");
     } else {
         copy_text(info->state, sizeof(info->state), "OFFLINE");
     }
+    trace_stage("before-session");
 
     read_node_session(info);
+    trace_stage("query-exit");
     return 0;
 }
