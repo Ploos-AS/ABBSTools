@@ -35,18 +35,25 @@ cp tests/fixtures/node_unknown.log "$tool_dir/node_unknown.log"
 
 cp "$startup" "$startup.abbstools-original"
 cat > "$startup" <<'EOF'
-SYS:C/Echo "ABBSTOOLS_GUEST_STARTED=1" >SYS:abbstools-nodeinfo-started.txt
+SYS:C/Echo "ABBSTOOLS_GUEST_STARTED=1" >SYS:abbstools-nodeinfo-stage-started.txt
 SYS:C/Assign ABBS: SYS:ABBSToolsTest/ABBS
+SYS:C/Echo "ABBSTOOLS_ASSIGN_DONE=1" >SYS:abbstools-nodeinfo-stage-assign.txt
 SYS:C/Copy SYS:ABBSToolsTest/node_active.log ABBS:node1logfile QUIET
+SYS:C/Echo "ABBSTOOLS_ACTIVE_COPY_DONE=1" >SYS:abbstools-nodeinfo-stage-active-copy.txt
 SYS:ABBSToolsTest/NodeInfo 1 >SYS:abbstools-nodeinfo-active.txt
 SYS:C/Echo $RC >SYS:abbstools-nodeinfo-active-rc.txt
+SYS:C/Echo "ABBSTOOLS_ACTIVE_DONE=1" >SYS:abbstools-nodeinfo-stage-active-done.txt
 SYS:C/Copy SYS:ABBSToolsTest/node_idle.log ABBS:node1logfile QUIET
+SYS:C/Echo "ABBSTOOLS_IDLE_COPY_DONE=1" >SYS:abbstools-nodeinfo-stage-idle-copy.txt
 SYS:ABBSToolsTest/NodeInfo 1 >SYS:abbstools-nodeinfo-idle.txt
 SYS:C/Echo $RC >SYS:abbstools-nodeinfo-idle-rc.txt
+SYS:C/Echo "ABBSTOOLS_IDLE_DONE=1" >SYS:abbstools-nodeinfo-stage-idle-done.txt
 SYS:C/Copy SYS:ABBSToolsTest/node_unknown.log ABBS:node1logfile QUIET
+SYS:C/Echo "ABBSTOOLS_UNKNOWN_COPY_DONE=1" >SYS:abbstools-nodeinfo-stage-unknown-copy.txt
 SYS:ABBSToolsTest/NodeInfo 1 >SYS:abbstools-nodeinfo-unknown.txt
 SYS:C/Echo $RC >SYS:abbstools-nodeinfo-unknown-rc.txt
-SYS:C/Echo "ABBSTOOLS_AFTER_NODEINFO_SESSION=1" >SYS:abbstools-nodeinfo-after.txt
+SYS:C/Echo "ABBSTOOLS_UNKNOWN_DONE=1" >SYS:abbstools-nodeinfo-stage-unknown-done.txt
+SYS:C/Echo "ABBSTOOLS_AFTER_NODEINFO_SESSION=1" >SYS:abbstools-nodeinfo-stage-after.txt
 SYS:C/Execute SYS:S/Startup-Sequence.abbstools-original
 EOF
 
@@ -67,31 +74,68 @@ unknown="$aros_root/abbstools-nodeinfo-unknown.txt"
 active_rc_file="$aros_root/abbstools-nodeinfo-active-rc.txt"
 idle_rc_file="$aros_root/abbstools-nodeinfo-idle-rc.txt"
 unknown_rc_file="$aros_root/abbstools-nodeinfo-unknown-rc.txt"
-started="$aros_root/abbstools-nodeinfo-started.txt"
-after="$aros_root/abbstools-nodeinfo-after.txt"
 
 read_rc() {
   local f="$1"
   if [[ -f "$f" ]]; then tr -d '\r\n ' < "$f"; fi
 }
 
+has_stage() {
+  local name="$1"
+  if [[ -f "$aros_root/abbstools-nodeinfo-stage-$name.txt" ]]; then
+    echo 1
+  else
+    echo 0
+  fi
+}
+
 active_rc="$(read_rc "$active_rc_file")"
 idle_rc="$(read_rc "$idle_rc_file")"
 unknown_rc="$(read_rc "$unknown_rc_file")"
 
+started="$(has_stage started)"
+assign_done="$(has_stage assign)"
+active_copy_done="$(has_stage active-copy)"
+active_done="$(has_stage active-done)"
+idle_copy_done="$(has_stage idle-copy)"
+idle_done="$(has_stage idle-done)"
+unknown_copy_done="$(has_stage unknown-copy)"
+unknown_done="$(has_stage unknown-done)"
+after_done="$(has_stage after)"
+
 status=FAIL
 observation=guest_tool_failure
-if [[ -f "$started" && -f "$after" && -f "$active" && -f "$idle" && -f "$unknown" ]] \
-   && grep -q '^SESSION=ACTIVE$' "$active" \
-   && grep -q '^USER=Test User$' "$active" \
-   && grep -q '^SESSION=IDLE$' "$idle" \
-   && grep -q '^USER=$' "$idle" \
-   && grep -q '^SESSION=UNKNOWN$' "$unknown" \
+if [[ "$started" == 1 && "$after_done" == 1 && -f "$active" && -f "$idle" && -f "$unknown" ]] \
+   && tr -d '\r' < "$active" | grep -q '^SESSION=ACTIVE$' \
+   && tr -d '\r' < "$active" | grep -q '^USER=Test User$' \
+   && tr -d '\r' < "$idle" | grep -q '^SESSION=IDLE$' \
+   && tr -d '\r' < "$idle" | grep -q '^USER=$' \
+   && tr -d '\r' < "$unknown" | grep -q '^SESSION=UNKNOWN$' \
    && [[ "$active_rc" == "0" ]] \
    && [[ "$idle_rc" == "0" ]] \
    && [[ "$unknown_rc" == "0" ]]; then
   status=PASS
   observation=guest_executed_nodeinfo_session_fixtures
+elif [[ "$started" != 1 ]]; then
+  observation=guest_startup_not_reached
+elif [[ "$assign_done" != 1 ]]; then
+  observation=guest_stopped_at_assign
+elif [[ "$active_copy_done" != 1 ]]; then
+  observation=guest_stopped_at_active_copy
+elif [[ "$active_done" != 1 ]]; then
+  observation=guest_stopped_in_active_nodeinfo
+elif [[ "$idle_copy_done" != 1 ]]; then
+  observation=guest_stopped_at_idle_copy
+elif [[ "$idle_done" != 1 ]]; then
+  observation=guest_stopped_in_idle_nodeinfo
+elif [[ "$unknown_copy_done" != 1 ]]; then
+  observation=guest_stopped_at_unknown_copy
+elif [[ "$unknown_done" != 1 ]]; then
+  observation=guest_stopped_in_unknown_nodeinfo
+elif [[ "$after_done" != 1 ]]; then
+  observation=guest_stopped_after_unknown_nodeinfo
+else
+  observation=guest_completed_but_contract_mismatch
 fi
 
 {
@@ -100,6 +144,15 @@ fi
   echo "MODEL=A1200"
   echo "KICKSTART=internal"
   echo "FS_UAE_EXIT=$fs_rc"
+  echo "STAGE_STARTED=$started"
+  echo "STAGE_ASSIGN=$assign_done"
+  echo "STAGE_ACTIVE_COPY=$active_copy_done"
+  echo "STAGE_ACTIVE_DONE=$active_done"
+  echo "STAGE_IDLE_COPY=$idle_copy_done"
+  echo "STAGE_IDLE_DONE=$idle_done"
+  echo "STAGE_UNKNOWN_COPY=$unknown_copy_done"
+  echo "STAGE_UNKNOWN_DONE=$unknown_done"
+  echo "STAGE_AFTER=$after_done"
   echo "ACTIVE_RC=$active_rc"
   echo "IDLE_RC=$idle_rc"
   echo "UNKNOWN_RC=$unknown_rc"
