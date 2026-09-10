@@ -61,24 +61,31 @@ compile_tool NodeWatch \
   src/common/abbs.c \
   src/tools/nodewatch/main.c
 
-echo 'STEP=native-build-NodeInfoTrace'
-rm -f build/NodeInfoTrace
-timeout "${BUILD_TIMEOUT}s" docker run --rm -v "$PWD:/work" -w /work "$IMAGE" \
-  m68k-amigaos-gcc \
-    -Iinclude -DABBSTOOLS_CI_TRACE=1 \
-    -Os -Wall -Wextra -Werror \
-    -m68000 -fomit-frame-pointer -noixemul \
-    -o build/NodeInfoTrace \
-    src/common/output.c \
-    src/common/abbs.c \
-    src/tools/nodeinfo/main.c \
-    -noixemul
-cp build/NodeInfoTrace "$OUT_DIR/NodeInfoTrace"
+build_trace_tool() {
+  local tool="$1"
+  local source="$2"
+  echo "STEP=native-build-${tool}Trace"
+  rm -f "build/${tool}Trace"
+  timeout "${BUILD_TIMEOUT}s" docker run --rm -v "$PWD:/work" -w /work "$IMAGE" \
+    m68k-amigaos-gcc \
+      -Iinclude -DABBSTOOLS_CI_TRACE=1 \
+      -Os -Wall -Wextra -Werror \
+      -m68000 -fomit-frame-pointer -noixemul \
+      -o "build/${tool}Trace" \
+      src/common/output.c \
+      src/common/abbs.c \
+      "$source" \
+      -noixemul
+  cp "build/${tool}Trace" "$OUT_DIR/${tool}Trace"
+}
+
+build_trace_tool NodeInfo src/tools/nodeinfo/main.c
+build_trace_tool NodeWatch src/tools/nodewatch/main.c
 
 echo 'STEP=validate-binaries'
 : > "$OUT_DIR/file.txt"
 : > "$OUT_DIR/checksums.sha256"
-for tool in RexxPorts RexxProbe NodeInfo NodeWatch NodeInfoTrace; do
+for tool in RexxPorts RexxProbe NodeInfo NodeWatch NodeInfoTrace NodeWatchTrace; do
   test -s "build/$tool"
   cp "build/$tool" "$OUT_DIR/$tool"
   file "$OUT_DIR/$tool" | tee -a "$OUT_DIR/file.txt"
@@ -98,4 +105,5 @@ done
   echo "BINARY_NODEINFO=$OUT_DIR/NodeInfo"
   echo "BINARY_NODEWATCH=$OUT_DIR/NodeWatch"
   echo "BINARY_NODEINFO_TRACE=$OUT_DIR/NodeInfoTrace"
+  echo "BINARY_NODEWATCH_TRACE=$OUT_DIR/NodeWatchTrace"
 } | tee "$OUT_DIR/result.txt"
