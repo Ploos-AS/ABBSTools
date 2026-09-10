@@ -56,7 +56,9 @@ int main(int argc, char **argv)
 {
     const char *bbs_path = "BBS:";
     const char *abbs_path = "ABBS:";
+#ifdef ABBSTOOLS_CI_TRACE
     const char *log_path = 0;
+#endif
     struct AbtNodeInfo info;
     ULONG node;
     UBYTE bbs_present;
