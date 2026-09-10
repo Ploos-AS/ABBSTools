@@ -50,9 +50,16 @@ The current AROS boot-ISO contains a `rexxsyslib.library` file, but the guest ca
 - [x] Establish qualified ABBS node public-port naming from existing ABBS door code
 - [x] Replace conservative adapter stub with live Exec public-port lookup
 - [x] Report `PORT`, `PRESENT` and `STATE=ONLINE|OFFLINE`
-- [ ] Establish a qualified interface for current user/session metadata
+
+#### M1.3c — session metadata from node logs
+
+- [x] Use documented `ABBS:nodeXlogfile` naming
+- [x] Parse sequential `Login:` / `Logout:` records read-only
+- [x] Report `LOG`, `LOG_PRESENT`, `SESSION=ACTIVE|IDLE|UNKNOWN` and `USER`
+- [x] Avoid undocumented ABBS memory structures
+- [ ] Native-build qualify M1.3c
+- [ ] Runtime-qualify idle, connected and missing-log cases against ABBS
 - [ ] Expose structured ARexx results
-- [ ] Runtime-qualify idle, connected and invalid node cases against ABBS
 - [ ] Final compatibility qualification on intended AmigaOS 2.04 baseline
 
 ## M2 — ABBS node diagnostics
@@ -76,16 +83,17 @@ Candidate tools: `TCPInfo`, Telnet diagnostics and integration diagnostics usefu
 Keep observability optional and non-invasive for classic systems. Candidate scope:
 
 - Stable machine-readable output suitable for external collectors
+- Optional `Metrics` exporter/snapshot tool with stable `abbs_` metric names
 - Optional host-side exporter/bridge for Prometheus
 - Node availability, session, error and activity metrics where ABBS exposes reliable data
 - No mandatory TCP stack, daemon or Prometheus dependency on the Amiga itself
 - Preserve normal standalone Shell/ARexx operation when observability is unused
 
-Prometheus support is an integration target, not a requirement for using ABBSTools.
+Prometheus support is optional at runtime, but M6 is part of the v0.1.0 suite/release gate.
 
 ## v0.1.0 release target
 
-The first release should contain the useful initial suite rather than only the M1 foundation. Target the implemented and qualified tools from M1 through M5, with M6 observability support included where it is mature enough to remain optional and low-risk.
+The first release is the complete initial ABBSTools suite, not a technical preview. M0 through M6 are the v0.1.0 release scope; all planned tools and the optional observability integration must be implemented and qualified before tagging v0.1.0.
 
 ## Qualification strategy
 
