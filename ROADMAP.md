@@ -57,14 +57,25 @@ The current AROS boot-ISO contains a `rexxsyslib.library` file, but the guest ca
 - [x] Parse sequential `Login:` / `Logout:` records read-only
 - [x] Report `LOG`, `LOG_PRESENT`, `SESSION=ACTIVE|IDLE|UNKNOWN` and `USER`
 - [x] Avoid undocumented ABBS memory structures
-- [ ] Native-build qualify M1.3c
-- [ ] Runtime-qualify idle, connected and missing-log cases against ABBS
+- [x] Native-build qualify M1.3c
+- [x] Runtime-qualify deterministic idle, active and unknown log fixtures under FS-UAE + AROS
+- [ ] Runtime-qualify idle, connected and missing-log cases against live ABBS
 - [ ] Expose structured ARexx results
 - [ ] Final compatibility qualification on intended AmigaOS 2.04 baseline
 
 ## M2 — ABBS node diagnostics
 
-Candidate tools: `NodeWatch`, `NodeCheck`, `AssignCheck`, `BBSDoctor`.
+### M2.1 — NodeWatch
+
+- [x] Define `NodeWatch NODE [INTERVAL [COUNT]]` CLI
+- [x] Reuse the qualified NodeInfo/ABBS adapter rather than adding new ABBS assumptions
+- [x] Emit stable one-line machine-readable samples
+- [x] Support bounded `COUNT` runs for deterministic qualification and `COUNT=0` for continuous monitoring
+- [x] Add static and native-build gates
+- [ ] Add FS-UAE + AROS deterministic runtime smoke
+- [ ] Qualify against live ABBS on intended AmigaOS 2.04 baseline
+
+Remaining M2 candidate tools: `NodeCheck`, `AssignCheck`, `BBSDoctor`.
 
 ## M3 — Users, conferences and logs
 
