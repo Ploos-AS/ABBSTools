@@ -25,15 +25,19 @@ jobs:
           sudo apt-get install -y fs-uae xvfb curl lhasa file p7zip-full unzip
 
       - name: Gate 1 - native 68000 build
+        timeout-minutes: 5
         run: bash ci/build-native.sh
 
       - name: Gate 2 - execute RexxPorts inside AROS guest
+        timeout-minutes: 8
         run: bash ci/fs-uae/run-aros-rexxports-smoke.sh
 
       - name: Gate 3 - execute RexxProbe inside AROS guest
+        timeout-minutes: 8
         run: bash ci/fs-uae/run-aros-rexxprobe-smoke.sh
 
       - name: Gate 4 - execute NodeInfo session fixtures inside AROS guest
+        timeout-minutes: 8
         run: bash ci/fs-uae/run-aros-nodeinfo-session-smoke.sh
 
       - name: Upload qualification evidence
