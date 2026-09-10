@@ -38,19 +38,16 @@ cp tests/fixtures/node_unknown.log "$unknown_dir/node1logfile"
 cp "$startup" "$startup.abbstools-original"
 cat > "$startup" <<'EOF'
 SYS:C/Echo "ABBSTOOLS_GUEST_STARTED=1" >SYS:abbstools-nodeinfo-stage-started.txt
-SYS:C/Assign ABBS: SYS:ABBSToolsTest/ABBS-active
-SYS:C/Echo "ABBSTOOLS_ACTIVE_ASSIGN_DONE=1" >SYS:abbstools-nodeinfo-stage-active-assign.txt
-SYS:ABBSToolsTest/NodeInfo 1 >SYS:abbstools-nodeinfo-active.txt
+SYS:C/Echo "ABBSTOOLS_ACTIVE_PATH_READY=1" >SYS:abbstools-nodeinfo-stage-active-path.txt
+SYS:ABBSToolsTest/NodeInfo 1 SYS:ABBSToolsTest/ABBS-active/node1logfile >SYS:abbstools-nodeinfo-active.txt
 SYS:C/Echo $RC >SYS:abbstools-nodeinfo-active-rc.txt
 SYS:C/Echo "ABBSTOOLS_ACTIVE_DONE=1" >SYS:abbstools-nodeinfo-stage-active-done.txt
-SYS:C/Assign ABBS: SYS:ABBSToolsTest/ABBS-idle
-SYS:C/Echo "ABBSTOOLS_IDLE_ASSIGN_DONE=1" >SYS:abbstools-nodeinfo-stage-idle-assign.txt
-SYS:ABBSToolsTest/NodeInfo 1 >SYS:abbstools-nodeinfo-idle.txt
+SYS:C/Echo "ABBSTOOLS_IDLE_PATH_READY=1" >SYS:abbstools-nodeinfo-stage-idle-path.txt
+SYS:ABBSToolsTest/NodeInfo 1 SYS:ABBSToolsTest/ABBS-idle/node1logfile >SYS:abbstools-nodeinfo-idle.txt
 SYS:C/Echo $RC >SYS:abbstools-nodeinfo-idle-rc.txt
 SYS:C/Echo "ABBSTOOLS_IDLE_DONE=1" >SYS:abbstools-nodeinfo-stage-idle-done.txt
-SYS:C/Assign ABBS: SYS:ABBSToolsTest/ABBS-unknown
-SYS:C/Echo "ABBSTOOLS_UNKNOWN_ASSIGN_DONE=1" >SYS:abbstools-nodeinfo-stage-unknown-assign.txt
-SYS:ABBSToolsTest/NodeInfo 1 >SYS:abbstools-nodeinfo-unknown.txt
+SYS:C/Echo "ABBSTOOLS_UNKNOWN_PATH_READY=1" >SYS:abbstools-nodeinfo-stage-unknown-path.txt
+SYS:ABBSToolsTest/NodeInfo 1 SYS:ABBSToolsTest/ABBS-unknown/node1logfile >SYS:abbstools-nodeinfo-unknown.txt
 SYS:C/Echo $RC >SYS:abbstools-nodeinfo-unknown-rc.txt
 SYS:C/Echo "ABBSTOOLS_UNKNOWN_DONE=1" >SYS:abbstools-nodeinfo-stage-unknown-done.txt
 SYS:C/Echo "ABBSTOOLS_AFTER_NODEINFO_SESSION=1" >SYS:abbstools-nodeinfo-stage-after.txt
@@ -103,11 +100,11 @@ idle_rc="$(read_rc "$idle_rc_file")"
 unknown_rc="$(read_rc "$unknown_rc_file")"
 
 started="$(has_stage started)"
-active_assign_done="$(has_stage active-assign)"
+active_path_ready="$(has_stage active-path)"
 active_done="$(has_stage active-done)"
-idle_assign_done="$(has_stage idle-assign)"
+idle_path_ready="$(has_stage idle-path)"
 idle_done="$(has_stage idle-done)"
-unknown_assign_done="$(has_stage unknown-assign)"
+unknown_path_ready="$(has_stage unknown-path)"
 unknown_done="$(has_stage unknown-done)"
 after_done="$(has_stage after)"
 
@@ -125,19 +122,19 @@ if [[ "$started" == 1 && "$after_done" == 1 && -f "$active" && -f "$idle" && -f 
    && [[ "$idle_rc" == "0" ]] \
    && [[ "$unknown_rc" == "0" ]]; then
   status=PASS
-  observation=guest_executed_nodeinfo_session_fixtures
+  observation=guest_executed_nodeinfo_session_fixtures_direct_paths
 elif [[ "$started" != 1 ]]; then
   observation=guest_startup_not_reached
-elif [[ "$active_assign_done" != 1 ]]; then
-  observation=guest_stopped_at_active_assign
+elif [[ "$active_path_ready" != 1 ]]; then
+  observation=guest_stopped_before_active_path
 elif [[ "$active_done" != 1 ]]; then
   observation=guest_stopped_in_active_nodeinfo
-elif [[ "$idle_assign_done" != 1 ]]; then
-  observation=guest_stopped_at_idle_assign
+elif [[ "$idle_path_ready" != 1 ]]; then
+  observation=guest_stopped_before_idle_path
 elif [[ "$idle_done" != 1 ]]; then
   observation=guest_stopped_in_idle_nodeinfo
-elif [[ "$unknown_assign_done" != 1 ]]; then
-  observation=guest_stopped_at_unknown_assign
+elif [[ "$unknown_path_ready" != 1 ]]; then
+  observation=guest_stopped_before_unknown_path
 elif [[ "$unknown_done" != 1 ]]; then
   observation=guest_stopped_in_unknown_nodeinfo
 elif [[ "$after_done" != 1 ]]; then
@@ -152,12 +149,13 @@ fi
   echo "MODEL=A1200"
   echo "KICKSTART=internal"
   echo "FS_UAE_EXIT=$fs_rc"
+  echo "FIXTURE_PATH_MODE=direct"
   echo "STAGE_STARTED=$started"
-  echo "STAGE_ACTIVE_ASSIGN=$active_assign_done"
+  echo "STAGE_ACTIVE_PATH=$active_path_ready"
   echo "STAGE_ACTIVE_DONE=$active_done"
-  echo "STAGE_IDLE_ASSIGN=$idle_assign_done"
+  echo "STAGE_IDLE_PATH=$idle_path_ready"
   echo "STAGE_IDLE_DONE=$idle_done"
-  echo "STAGE_UNKNOWN_ASSIGN=$unknown_assign_done"
+  echo "STAGE_UNKNOWN_PATH=$unknown_path_ready"
   echo "STAGE_UNKNOWN_DONE=$unknown_done"
   echo "STAGE_AFTER=$after_done"
   echo "ACTIVE_RC=$active_rc"
