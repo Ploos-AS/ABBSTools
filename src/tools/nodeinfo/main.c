@@ -39,6 +39,17 @@ static int parse_node(const char *text, ULONG *node)
     return 1;
 }
 
+static const char *session_name(UBYTE state)
+{
+    if (state == ABBSTOOLS_SESSION_ACTIVE) {
+        return "ACTIVE";
+    }
+    if (state == ABBSTOOLS_SESSION_IDLE) {
+        return "IDLE";
+    }
+    return "UNKNOWN";
+}
+
 int main(int argc, char **argv)
 {
     struct AbtNodeInfo info;
@@ -73,6 +84,12 @@ int main(int argc, char **argv)
     abt_puts(info.port_present ? "1" : "0");
     abt_puts("\nSTATE=");
     abt_puts(info.state);
+    abt_puts("\nLOG=");
+    abt_puts(info.log);
+    abt_puts("\nLOG_PRESENT=");
+    abt_puts(info.log_present ? "1" : "0");
+    abt_puts("\nSESSION=");
+    abt_puts(session_name(info.session_state));
     abt_puts("\nUSER=");
     abt_puts(info.user);
     abt_puts("\n");
