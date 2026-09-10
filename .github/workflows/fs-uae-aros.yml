@@ -12,7 +12,7 @@ permissions:
 jobs:
   aros-runtime:
     runs-on: ubuntu-24.04
-    timeout-minutes: 35
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
 
@@ -48,17 +48,23 @@ jobs:
         timeout-minutes: 8
         run: bash ci/fs-uae/run-aros-nodewatch-smoke.sh
 
+      - name: Gate 6 - execute NodeCheck fixture matrix inside AROS guest
+        timeout-minutes: 8
+        run: bash ci/fs-uae/run-aros-nodecheck-smoke.sh
+
       - name: Upload qualification evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: fs-uae-aros-m2-1-qualification
+          name: fs-uae-aros-m2-2-qualification
           path: |
             build/qualification/native/RexxPorts
             build/qualification/native/RexxProbe
             build/qualification/native/NodeInfo
             build/qualification/native/NodeWatch
+            build/qualification/native/NodeCheck
             build/qualification/native/NodeWatchTrace
+            build/qualification/native/NodeCheckTrace
             build/qualification/native/result.txt
             build/fs-uae/aros-system/source.txt
             build/fs-uae/aros-system/archive.sha256
@@ -78,4 +84,8 @@ jobs:
             build/fs-uae/aros-nodewatch/fs-uae.log
             build/fs-uae/aros-nodewatch/fs-uae-version.txt
             build/fs-uae/aros-nodewatch/aros-guest.fs-uae
+            build/fs-uae/aros-nodecheck/result.txt
+            build/fs-uae/aros-nodecheck/fs-uae.log
+            build/fs-uae/aros-nodecheck/fs-uae-version.txt
+            build/fs-uae/aros-nodecheck/aros-guest.fs-uae
           if-no-files-found: warn
