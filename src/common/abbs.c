@@ -92,7 +92,10 @@ static const char *find_text(const char *text, const char *needle)
     ULONG j;
 
     for (i = 0; text[i] != 0; ++i) {
-        for (j = 0; needle[j] != 0 && text[i + j] == needle[j]; ++j) {
+        for (j = 0; needle[j] != 0; ++j) {
+            if (text[i + j] == 0 || text[i + j] != needle[j]) {
+                break;
+            }
         }
         if (needle[j] == 0) {
             return text + i;
@@ -160,6 +163,9 @@ static void read_node_session(struct AbtNodeInfo *info)
 {
     BPTR fh;
     char line[256];
+    char ch;
+    LONG got;
+    ULONG len = 0;
     UBYTE saw_event = 0;
 
     info->log_present = 0;
@@ -172,7 +178,21 @@ static void read_node_session(struct AbtNodeInfo *info)
     }
 
     info->log_present = 1;
-    while (FGets(fh, (STRPTR)line, (LONG)sizeof(line)) != 0) {
+    while ((got = Read(fh, &ch, 1)) == 1) {
+        if (ch == '\n' || len + 1 >= sizeof(line)) {
+            line[len] = 0;
+            parse_session_line(line, info, &saw_event);
+            len = 0;
+            if (ch != '\n' && len + 1 < sizeof(line)) {
+                line[len++] = ch;
+            }
+        } else if (ch != '\r') {
+            line[len++] = ch;
+        }
+    }
+
+    if (len != 0) {
+        line[len] = 0;
         parse_session_line(line, info, &saw_event);
     }
     Close(fh);
