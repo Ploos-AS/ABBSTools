@@ -55,10 +55,24 @@ compile_tool NodeInfo \
   src/common/abbs.c \
   src/tools/nodeinfo/main.c
 
+echo 'STEP=native-build-NodeInfoTrace'
+rm -f build/NodeInfoTrace
+timeout "${BUILD_TIMEOUT}s" docker run --rm -v "$PWD:/work" -w /work "$IMAGE" \
+  m68k-amigaos-gcc \
+    -Iinclude -DABBSTOOLS_CI_TRACE=1 \
+    -Os -Wall -Wextra -Werror \
+    -m68000 -fomit-frame-pointer -noixemul \
+    -o build/NodeInfoTrace \
+    src/common/output.c \
+    src/common/abbs.c \
+    src/tools/nodeinfo/main.c \
+    -noixemul
+cp build/NodeInfoTrace "$OUT_DIR/NodeInfoTrace"
+
 echo 'STEP=validate-binaries'
 : > "$OUT_DIR/file.txt"
 : > "$OUT_DIR/checksums.sha256"
-for tool in RexxPorts RexxProbe NodeInfo; do
+for tool in RexxPorts RexxProbe NodeInfo NodeInfoTrace; do
   test -s "build/$tool"
   cp "build/$tool" "$OUT_DIR/$tool"
   file "$OUT_DIR/$tool" | tee -a "$OUT_DIR/file.txt"
@@ -76,4 +90,5 @@ done
   echo "BINARY_REXXPORTS=$OUT_DIR/RexxPorts"
   echo "BINARY_REXXPROBE=$OUT_DIR/RexxProbe"
   echo "BINARY_NODEINFO=$OUT_DIR/NodeInfo"
+  echo "BINARY_NODEINFO_TRACE=$OUT_DIR/NodeInfoTrace"
 } | tee "$OUT_DIR/result.txt"
