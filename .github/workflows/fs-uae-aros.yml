@@ -33,14 +33,18 @@ jobs:
       - name: Gate 3 - execute RexxProbe inside AROS guest
         run: bash ci/fs-uae/run-aros-rexxprobe-smoke.sh
 
+      - name: Gate 4 - execute NodeInfo session fixtures inside AROS guest
+        run: bash ci/fs-uae/run-aros-nodeinfo-session-smoke.sh
+
       - name: Upload qualification evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: fs-uae-aros-m1-2-qualification
+          name: fs-uae-aros-m1-3-qualification
           path: |
             build/qualification/native/RexxPorts
             build/qualification/native/RexxProbe
+            build/qualification/native/NodeInfo
             build/qualification/native/result.txt
             build/fs-uae/aros-system/source.txt
             build/fs-uae/aros-system/archive.sha256
@@ -52,4 +56,8 @@ jobs:
             build/fs-uae/aros-rexxprobe/fs-uae.log
             build/fs-uae/aros-rexxprobe/fs-uae-version.txt
             build/fs-uae/aros-rexxprobe/aros-guest.fs-uae
+            build/fs-uae/aros-nodeinfo-session/result.txt
+            build/fs-uae/aros-nodeinfo-session/fs-uae.log
+            build/fs-uae/aros-nodeinfo-session/fs-uae-version.txt
+            build/fs-uae/aros-nodeinfo-session/aros-guest.fs-uae
           if-no-files-found: warn
