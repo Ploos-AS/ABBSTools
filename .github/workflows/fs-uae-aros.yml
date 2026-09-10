@@ -12,7 +12,7 @@ permissions:
 jobs:
   aros-runtime:
     runs-on: ubuntu-24.04
-    timeout-minutes: 45
+    timeout-minutes: 55
     steps:
       - uses: actions/checkout@v4
 
@@ -56,11 +56,15 @@ jobs:
         timeout-minutes: 8
         run: bash ci/fs-uae/run-aros-assigncheck-smoke.sh
 
+      - name: Gate 8 - execute BBSDoctor aggregate health matrix inside AROS guest
+        timeout-minutes: 8
+        run: bash ci/fs-uae/run-aros-bbsdoctor-smoke.sh
+
       - name: Upload qualification evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: fs-uae-aros-m2-3-qualification
+          name: fs-uae-aros-m2-4-qualification
           path: |
             build/qualification/native/RexxPorts
             build/qualification/native/RexxProbe
@@ -68,8 +72,11 @@ jobs:
             build/qualification/native/NodeWatch
             build/qualification/native/NodeCheck
             build/qualification/native/AssignCheck
+            build/qualification/native/BBSDoctor
             build/qualification/native/NodeWatchTrace
             build/qualification/native/NodeCheckTrace
+            build/qualification/native/AssignCheckTrace
+            build/qualification/native/BBSDoctorTrace
             build/qualification/native/result.txt
             build/fs-uae/aros-system/source.txt
             build/fs-uae/aros-system/archive.sha256
@@ -97,4 +104,8 @@ jobs:
             build/fs-uae/aros-assigncheck/fs-uae.log
             build/fs-uae/aros-assigncheck/fs-uae-version.txt
             build/fs-uae/aros-assigncheck/aros-guest.fs-uae
+            build/fs-uae/aros-bbsdoctor/result.txt
+            build/fs-uae/aros-bbsdoctor/fs-uae.log
+            build/fs-uae/aros-bbsdoctor/fs-uae-version.txt
+            build/fs-uae/aros-bbsdoctor/aros-guest.fs-uae
           if-no-files-found: warn
