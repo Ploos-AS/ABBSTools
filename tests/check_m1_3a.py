@@ -19,9 +19,21 @@ checks = {
         and "info->port" in adapter
         and "Permit();" in adapter
     ),
+    "node log path is modeled": "log_present" in header and "ABBSTOOLS_ABBS_NODE_LOG_LEN" in header,
+    "qualified ABBS node log naming": '"ABBS:node"' in adapter and '"logfile"' in adapter,
+    "session state is explicit": (
+        "ABBSTOOLS_SESSION_UNKNOWN" in header
+        and "ABBSTOOLS_SESSION_IDLE" in header
+        and "ABBSTOOLS_SESSION_ACTIVE" in header
+    ),
+    "login parser exists": 'find_text(line, " Login: ")' in adapter,
+    "logout parser exists": 'find_text(line, " Logout: ")' in adapter,
+    "node log is read-only": "MODE_OLDFILE" in adapter and "FGets(" in adapter,
     "NodeInfo accepts a node": "Usage: NodeInfo NODE" in nodeinfo,
     "NodeInfo reports port": 'abt_puts("STATUS=OK\\nPORT=")' in nodeinfo,
     "NodeInfo reports presence": 'abt_puts("\\nPRESENT=")' in nodeinfo,
+    "NodeInfo reports session": 'abt_puts("\\nSESSION=")' in nodeinfo,
+    "NodeInfo reports log presence": 'abt_puts("\\nLOG_PRESENT=")' in nodeinfo,
     "NodeInfo target exists": "NodeInfo" in makefile,
 }
 
