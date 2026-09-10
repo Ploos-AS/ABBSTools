@@ -17,24 +17,39 @@ static UBYTE path_present(const char *path)
 
 int main(int argc, char **argv)
 {
+    const char *bbs_path = "BBS:";
+    const char *abbs_path = "ABBS:";
     UBYTE bbs_present;
     UBYTE abbs_present;
 
+#ifdef ABBSTOOLS_CI_TRACE
+    if (argc == 3) {
+        bbs_path = argv[1];
+        abbs_path = argv[2];
+    } else if (argc != 1) {
+        abt_puts("Usage: AssignCheck [BBS_PATH ABBS_PATH]\n");
+        return ABBSTOOLS_RC_ERROR;
+    }
+#else
     (void)argv;
-
     if (argc != 1) {
         abt_puts("Usage: AssignCheck\n");
         return ABBSTOOLS_RC_ERROR;
     }
+#endif
 
-    bbs_present = path_present("BBS:");
-    abbs_present = path_present("ABBS:");
+    bbs_present = path_present(bbs_path);
+    abbs_present = path_present(abbs_path);
 
-    abt_puts("BBS=BBS:\n");
+    abt_puts("BBS=");
+    abt_puts(bbs_path);
+    abt_puts("\n");
     abt_puts("BBS_PRESENT=");
     abt_put_u32((ULONG)bbs_present);
     abt_puts("\n");
-    abt_puts("ABBS=ABBS:\n");
+    abt_puts("ABBS=");
+    abt_puts(abbs_path);
+    abt_puts("\n");
     abt_puts("ABBS_PRESENT=");
     abt_put_u32((ULONG)abbs_present);
     abt_puts("\n");

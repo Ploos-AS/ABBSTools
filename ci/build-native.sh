@@ -44,37 +44,17 @@ compile_tool() {
       -noixemul
 }
 
-compile_tool RexxPorts \
-  src/common/output.c \
-  src/tools/rexxports/main.c
-
-compile_tool RexxProbe \
-  src/common/output.c \
-  src/common/arexx.c \
-  src/tools/rexxprobe/main.c
-
-compile_tool NodeInfo \
-  src/common/output.c \
-  src/common/abbs.c \
-  src/tools/nodeinfo/main.c
-
-compile_tool NodeWatch \
-  src/common/output.c \
-  src/common/abbs.c \
-  src/tools/nodewatch/main.c
-
-compile_tool NodeCheck \
-  src/common/output.c \
-  src/common/abbs.c \
-  src/tools/nodecheck/main.c
-
-compile_tool AssignCheck \
-  src/common/output.c \
-  src/tools/assigncheck/main.c
+compile_tool RexxPorts src/common/output.c src/tools/rexxports/main.c
+compile_tool RexxProbe src/common/output.c src/common/arexx.c src/tools/rexxprobe/main.c
+compile_tool NodeInfo src/common/output.c src/common/abbs.c src/tools/nodeinfo/main.c
+compile_tool NodeWatch src/common/output.c src/common/abbs.c src/tools/nodewatch/main.c
+compile_tool NodeCheck src/common/output.c src/common/abbs.c src/tools/nodecheck/main.c
+compile_tool AssignCheck src/common/output.c src/tools/assigncheck/main.c
 
 build_trace_tool() {
   local tool="$1"
   local source="$2"
+  shift 2
   echo "STEP=native-build-${tool}Trace"
   rm -f "build/${tool}Trace"
   timeout "${BUILD_TIMEOUT}s" docker run --rm -v "$PWD:/work" -w /work "$IMAGE" \
@@ -84,20 +64,21 @@ build_trace_tool() {
       -m68000 -fomit-frame-pointer -noixemul \
       -o "build/${tool}Trace" \
       src/common/output.c \
-      src/common/abbs.c \
+      "$@" \
       "$source" \
       -noixemul
   cp "build/${tool}Trace" "$OUT_DIR/${tool}Trace"
 }
 
-build_trace_tool NodeInfo src/tools/nodeinfo/main.c
-build_trace_tool NodeWatch src/tools/nodewatch/main.c
-build_trace_tool NodeCheck src/tools/nodecheck/main.c
+build_trace_tool NodeInfo src/tools/nodeinfo/main.c src/common/abbs.c
+build_trace_tool NodeWatch src/tools/nodewatch/main.c src/common/abbs.c
+build_trace_tool NodeCheck src/tools/nodecheck/main.c src/common/abbs.c
+build_trace_tool AssignCheck src/tools/assigncheck/main.c
 
 echo 'STEP=validate-binaries'
 : > "$OUT_DIR/file.txt"
 : > "$OUT_DIR/checksums.sha256"
-for tool in RexxPorts RexxProbe NodeInfo NodeWatch NodeCheck AssignCheck NodeInfoTrace NodeWatchTrace NodeCheckTrace; do
+for tool in RexxPorts RexxProbe NodeInfo NodeWatch NodeCheck AssignCheck NodeInfoTrace NodeWatchTrace NodeCheckTrace AssignCheckTrace; do
   test -s "build/$tool"
   cp "build/$tool" "$OUT_DIR/$tool"
   file "$OUT_DIR/$tool" | tee -a "$OUT_DIR/file.txt"
@@ -121,4 +102,5 @@ done
   echo "BINARY_NODEINFO_TRACE=$OUT_DIR/NodeInfoTrace"
   echo "BINARY_NODEWATCH_TRACE=$OUT_DIR/NodeWatchTrace"
   echo "BINARY_NODECHECK_TRACE=$OUT_DIR/NodeCheckTrace"
+  echo "BINARY_ASSIGNCHECK_TRACE=$OUT_DIR/AssignCheckTrace"
 } | tee "$OUT_DIR/result.txt"

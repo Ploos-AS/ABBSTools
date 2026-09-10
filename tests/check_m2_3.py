@@ -7,8 +7,9 @@ makefile = (root / "Makefile").read_text()
 
 checks = {
     "AssignCheck source exists": "Usage: AssignCheck" in source,
-    "checks BBS volume/assign": 'path_present("BBS:")' in source,
-    "checks ABBS assign": 'path_present("ABBS:")' in source,
+    "production BBS path is defined": 'bbs_path = "BBS:"' in source,
+    "production ABBS path is defined": 'abbs_path = "ABBS:"' in source,
+    "CI trace supports direct paths": "ABBSTOOLS_CI_TRACE" in source and "argc == 3" in source,
     "uses read-only Lock": "Lock((STRPTR)path, ACCESS_READ)" in source,
     "unlocks successful locks": "UnLock(lock)" in source,
     "reports BBS presence": "BBS_PRESENT=" in source,

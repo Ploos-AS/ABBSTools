@@ -6,8 +6,8 @@ SYSTEM_DIR="build/fs-uae/aros-system"
 NATIVE_DIR="build/qualification/native"
 mkdir -p "$OUT_DIR"
 
-if [[ ! -f "$NATIVE_DIR/AssignCheck" ]]; then
-  echo "ERROR: native AssignCheck binary missing; run ci/build-native.sh first" >&2
+if [[ ! -f "$NATIVE_DIR/AssignCheckTrace" ]]; then
+  echo "ERROR: native AssignCheckTrace binary missing; run ci/build-native.sh first" >&2
   exit 1
 fi
 
@@ -25,25 +25,25 @@ fi
 
 aros_root="$(dirname "$(dirname "$startup")")"
 tool_dir="$aros_root/ABBSToolsTest"
+rm -rf "$tool_dir"
 mkdir -p "$tool_dir/BBS" "$tool_dir/ABBS"
-cp "$NATIVE_DIR/AssignCheck" "$tool_dir/AssignCheck"
+cp "$NATIVE_DIR/AssignCheckTrace" "$tool_dir/AssignCheck"
 
 cp "$startup" "$startup.abbstools-original"
 cat > "$startup" <<'EOF'
 SYS:C/Echo "ABBSTOOLS_GUEST_STARTED=1" >SYS:abbstools-assigncheck-stage-started.txt
 
-SYS:C/Assign BBS: SYS:ABBSToolsTest/BBS
-SYS:C/Assign ABBS: SYS:ABBSToolsTest/ABBS
-SYS:ABBSToolsTest/AssignCheck >SYS:abbstools-assigncheck-both.txt
+SYS:ABBSToolsTest/AssignCheck SYS:ABBSToolsTest/BBS SYS:ABBSToolsTest/ABBS >SYS:abbstools-assigncheck-both.txt
 SYS:C/Echo $RC >SYS:abbstools-assigncheck-both-rc.txt
+SYS:C/Echo "ABBSTOOLS_BOTH_DONE=1" >SYS:abbstools-assigncheck-stage-both-done.txt
 
-SYS:C/Assign ABBS: REMOVE
-SYS:ABBSToolsTest/AssignCheck >SYS:abbstools-assigncheck-bbs-only.txt
+SYS:ABBSToolsTest/AssignCheck SYS:ABBSToolsTest/BBS SYS:ABBSToolsTest/MISSING-ABBS >SYS:abbstools-assigncheck-bbs-only.txt
 SYS:C/Echo $RC >SYS:abbstools-assigncheck-bbs-only-rc.txt
+SYS:C/Echo "ABBSTOOLS_BBS_ONLY_DONE=1" >SYS:abbstools-assigncheck-stage-bbs-only-done.txt
 
-SYS:C/Assign BBS: REMOVE
-SYS:ABBSToolsTest/AssignCheck >SYS:abbstools-assigncheck-none.txt
+SYS:ABBSToolsTest/AssignCheck SYS:ABBSToolsTest/MISSING-BBS SYS:ABBSToolsTest/MISSING-ABBS >SYS:abbstools-assigncheck-none.txt
 SYS:C/Echo $RC >SYS:abbstools-assigncheck-none-rc.txt
+SYS:C/Echo "ABBSTOOLS_NONE_DONE=1" >SYS:abbstools-assigncheck-stage-none-done.txt
 
 SYS:C/Echo "ABBSTOOLS_ASSIGNCHECK_DONE=1" >SYS:abbstools-assigncheck-stage-done.txt
 SYS:C/Execute SYS:S/Startup-Sequence.abbstools-original
@@ -60,18 +60,20 @@ timeout 45s xvfb-run -a fs-uae "$config" > "$OUT_DIR/fs-uae.log" 2>&1
 fs_rc=$?
 set -e
 
-started=0
-done_stage=0
-[[ -f "$aros_root/abbstools-assigncheck-stage-started.txt" ]] && started=1
-[[ -f "$aros_root/abbstools-assigncheck-stage-done.txt" ]] && done_stage=1
-
+has_stage() {
+  local name="$1"
+  [[ -f "$aros_root/abbstools-assigncheck-stage-$name.txt" ]] && echo 1 || echo 0
+}
 read_rc() {
   local file="$1"
-  if [[ -f "$file" ]]; then
-    tr -d '\r\n ' < "$file"
-  fi
+  [[ -f "$file" ]] && tr -d '\r\n ' < "$file" || true
 }
 
+started="$(has_stage started)"
+both_done="$(has_stage both-done)"
+bbs_only_done="$(has_stage bbs-only-done)"
+none_done="$(has_stage none-done)"
+done_stage="$(has_stage done)"
 both_rc="$(read_rc "$aros_root/abbstools-assigncheck-both-rc.txt")"
 bbs_only_rc="$(read_rc "$aros_root/abbstools-assigncheck-bbs-only-rc.txt")"
 none_rc="$(read_rc "$aros_root/abbstools-assigncheck-none-rc.txt")"
@@ -96,11 +98,17 @@ if [[ "$started" == 1 && "$done_stage" == 1 \
    && tr -d '\r' < "$none_out" | grep -q '^ABBS_PRESENT=0$' \
    && tr -d '\r' < "$none_out" | grep -q '^REASON=BBS_AND_ABBS_NOT_PRESENT$'; then
   status=PASS
-  observation=guest_executed_assigncheck_matrix
+  observation=guest_executed_assigncheck_matrix_direct_paths
 elif [[ "$started" != 1 ]]; then
   observation=guest_startup_not_reached
+elif [[ "$both_done" != 1 ]]; then
+  observation=guest_stopped_in_both_present_case
+elif [[ "$bbs_only_done" != 1 ]]; then
+  observation=guest_stopped_in_bbs_only_case
+elif [[ "$none_done" != 1 ]]; then
+  observation=guest_stopped_in_none_present_case
 elif [[ "$done_stage" != 1 ]]; then
-  observation=guest_stopped_in_assigncheck_matrix
+  observation=guest_stopped_after_assigncheck_matrix
 else
   observation=assigncheck_contract_mismatch
 fi
@@ -111,7 +119,11 @@ fi
   echo "MODEL=A1200"
   echo "KICKSTART=internal"
   echo "FS_UAE_EXIT=$fs_rc"
+  echo "FIXTURE_PATH_MODE=direct"
   echo "STAGE_STARTED=$started"
+  echo "STAGE_BOTH_DONE=$both_done"
+  echo "STAGE_BBS_ONLY_DONE=$bbs_only_done"
+  echo "STAGE_NONE_DONE=$none_done"
   echo "STAGE_DONE=$done_stage"
   echo "BOTH_RC=$both_rc"
   echo "BBS_ONLY_RC=$bbs_only_rc"
