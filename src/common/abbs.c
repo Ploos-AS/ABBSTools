@@ -241,7 +241,7 @@ static void read_node_session(struct AbtNodeInfo *info)
     }
 }
 
-int abt_abbs_node_query(ULONG node, struct AbtNodeInfo *info)
+static int node_query_impl(ULONG node, struct AbtNodeInfo *info, const char *log_override)
 {
     struct MsgPort *port;
 
@@ -250,6 +250,9 @@ int abt_abbs_node_query(ULONG node, struct AbtNodeInfo *info)
         !build_node_port(node, info->port, sizeof(info->port)) ||
         !build_node_log(node, info->log, sizeof(info->log))) {
         return ABBSTOOLS_ABBS_INTERFACE_UNQUALIFIED;
+    }
+    if (log_override != 0 && log_override[0] != 0) {
+        copy_text(info->log, sizeof(info->log), log_override);
     }
     trace_stage("paths-built");
 
@@ -279,3 +282,15 @@ int abt_abbs_node_query(ULONG node, struct AbtNodeInfo *info)
     trace_stage("query-exit");
     return 0;
 }
+
+int abt_abbs_node_query(ULONG node, struct AbtNodeInfo *info)
+{
+    return node_query_impl(node, info, 0);
+}
+
+#ifdef ABBSTOOLS_CI_TRACE
+int abt_abbs_node_query_trace(ULONG node, struct AbtNodeInfo *info, const char *log_path)
+{
+    return node_query_impl(node, info, log_path);
+}
+#endif
