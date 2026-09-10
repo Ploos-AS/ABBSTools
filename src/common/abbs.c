@@ -5,37 +5,7 @@
 
 #include "abbstools/abbs.h"
 
-#ifdef ABBSTOOLS_CI_TRACE
-static void trace_stage(const char *name)
-{
-    char path[96];
-    ULONG i = 0;
-    ULONG p = 0;
-    BPTR fh;
-
-    while ("SYS:abbstools-nodeinfo-internal-"[i] != 0 && p + 1 < sizeof(path)) {
-        path[p++] = "SYS:abbstools-nodeinfo-internal-"[i++];
-    }
-    i = 0;
-    while (name[i] != 0 && p + 5 < sizeof(path)) {
-        path[p++] = name[i++];
-    }
-    path[p++] = '.';
-    path[p++] = 't';
-    path[p++] = 'x';
-    path[p++] = 't';
-    path[p] = 0;
-
-    fh = Open((STRPTR)path, MODE_NEWFILE);
-    if (fh != 0) {
-        static const char marker[] = "1\n";
-        Write(fh, (APTR)marker, 2);
-        Close(fh);
-    }
-}
-#else
 #define trace_stage(name) ((void)0)
-#endif
 
 static void copy_text(char *dst, ULONG size, const char *src)
 {
