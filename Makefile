@@ -11,10 +11,11 @@ REXXPORTS_OBJS := $(OUTPUT_OBJ) $(BUILD_DIR)/rexxports/main.o
 REXXPROBE_OBJS := $(OUTPUT_OBJ) $(AREXX_OBJ) $(BUILD_DIR)/rexxprobe/main.o
 NODEINFO_OBJS := $(OUTPUT_OBJ) $(ABBS_OBJ) $(BUILD_DIR)/nodeinfo/main.o
 NODEWATCH_OBJS := $(OUTPUT_OBJ) $(ABBS_OBJ) $(BUILD_DIR)/nodewatch/main.o
+NODECHECK_OBJS := $(OUTPUT_OBJ) $(ABBS_OBJ) $(BUILD_DIR)/nodecheck/main.o
 
-.PHONY: all clean rexxports rexxprobe nodeinfo nodewatch check-config
+.PHONY: all clean rexxports rexxprobe nodeinfo nodewatch nodecheck check-config
 
-all: rexxports rexxprobe nodeinfo nodewatch
+all: rexxports rexxprobe nodeinfo nodewatch nodecheck
 
 check-config:
 	@echo "CC=$(CC)"
@@ -30,6 +31,8 @@ nodeinfo: $(BUILD_DIR)/NodeInfo
 
 nodewatch: $(BUILD_DIR)/NodeWatch
 
+nodecheck: $(BUILD_DIR)/NodeCheck
+
 $(BUILD_DIR)/RexxPorts: $(REXXPORTS_OBJS)
 	$(CC) $(LDFLAGS) -o $@ $(REXXPORTS_OBJS)
 
@@ -41,6 +44,9 @@ $(BUILD_DIR)/NodeInfo: $(NODEINFO_OBJS)
 
 $(BUILD_DIR)/NodeWatch: $(NODEWATCH_OBJS)
 	$(CC) $(LDFLAGS) -o $@ $(NODEWATCH_OBJS)
+
+$(BUILD_DIR)/NodeCheck: $(NODECHECK_OBJS)
+	$(CC) $(LDFLAGS) -o $@ $(NODECHECK_OBJS)
 
 $(BUILD_DIR)/common/%.o: src/common/%.c include/abbstools/common.h include/abbstools/arexx.h include/abbstools/abbs.h
 	@mkdir -p $(dir $@)
@@ -59,6 +65,10 @@ $(BUILD_DIR)/nodeinfo/%.o: src/tools/nodeinfo/%.c include/abbstools/common.h inc
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
 
 $(BUILD_DIR)/nodewatch/%.o: src/tools/nodewatch/%.c include/abbstools/common.h include/abbstools/abbs.h
+	@mkdir -p $(dir $@)
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
+
+$(BUILD_DIR)/nodecheck/%.o: src/tools/nodecheck/%.c include/abbstools/common.h include/abbstools/abbs.h
 	@mkdir -p $(dir $@)
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
 
