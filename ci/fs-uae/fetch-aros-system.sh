@@ -8,6 +8,12 @@ OUT_DIR="${1:-build/fs-uae/aros-system}"
 mkdir -p "$OUT_DIR"
 index_html="$OUT_DIR/aros-nightly-index.html"
 
+if [[ -s "$OUT_DIR/system.iso" && -s "$OUT_DIR/source.txt" && -s "$OUT_DIR/archive.sha256" ]]; then
+  echo "CACHE_HIT=$OUT_DIR/system.iso" >&2
+  echo "$OUT_DIR/system.iso"
+  exit 0
+fi
+
 curl --fail --location --retry 3 --retry-delay 2 \
   --connect-timeout 15 --max-time 120 \
   "$AROS_INDEX_URL" -o "$index_html"
