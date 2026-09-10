@@ -4,11 +4,19 @@
 #include "abbstools/abbs.h"
 #include "abbstools/common.h"
 
+#ifdef ABBSTOOLS_CI_TRACE
+extern int abt_abbs_node_query_trace(ULONG node, struct AbtNodeInfo *info, const char *log_path);
+#endif
+
 static void usage(void)
 {
     abt_puts("NodeWatch 0.1\n");
     abt_puts("ABBSTools - Ploos AS\n\n");
+#ifdef ABBSTOOLS_CI_TRACE
+    abt_puts("Usage: NodeWatch NODE [INTERVAL [COUNT [CI_LOG_PATH]]]\n");
+#else
     abt_puts("Usage: NodeWatch NODE [INTERVAL [COUNT]]\n");
+#endif
     abt_puts("INTERVAL is seconds (1-3600), default 5. COUNT 0 means continuous, default 0.\n");
 }
 
@@ -80,17 +88,43 @@ int main(int argc, char **argv)
     ULONG count = 0;
     ULONG sample = 1;
     int rc;
+#ifdef ABBSTOOLS_CI_TRACE
+    const char *log_path = 0;
 
-    if (argc < 2 || argc > 4 ||
-        !parse_u32(argv[1], 1, 65535UL, &node) ||
+    if (argc < 2 || argc > 5) {
+        usage();
+        return ABBSTOOLS_RC_ERROR;
+    }
+#else
+    if (argc < 2 || argc > 4) {
+        usage();
+        return ABBSTOOLS_RC_ERROR;
+    }
+#endif
+
+    if (!parse_u32(argv[1], 1, 65535UL, &node) ||
         (argc >= 3 && !parse_u32(argv[2], 1, 3600UL, &interval)) ||
         (argc >= 4 && !parse_u32(argv[3], 0, 65535UL, &count))) {
         usage();
         return ABBSTOOLS_RC_ERROR;
     }
 
+#ifdef ABBSTOOLS_CI_TRACE
+    if (argc == 5) {
+        log_path = argv[4];
+    }
+#endif
+
     for (;;) {
+#ifdef ABBSTOOLS_CI_TRACE
+        if (log_path != 0) {
+            rc = abt_abbs_node_query_trace(node, &info, log_path);
+        } else {
+            rc = abt_abbs_node_query(node, &info);
+        }
+#else
         rc = abt_abbs_node_query(node, &info);
+#endif
         if (rc == ABBSTOOLS_ABBS_INTERFACE_UNQUALIFIED) {
             abt_puts("STATUS=UNAVAILABLE REASON=ABBS_INTERFACE_NOT_QUALIFIED\n");
             return ABBSTOOLS_RC_WARN;
