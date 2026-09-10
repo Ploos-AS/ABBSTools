@@ -8,7 +8,9 @@ OUT_DIR="${1:-build/fs-uae/aros-system}"
 mkdir -p "$OUT_DIR"
 index_html="$OUT_DIR/aros-nightly-index.html"
 
-curl --fail --location --retry 3 --retry-delay 2 "$AROS_INDEX_URL" -o "$index_html"
+curl --fail --location --retry 3 --retry-delay 2 \
+  --connect-timeout 15 --max-time 120 \
+  "$AROS_INDEX_URL" -o "$index_html"
 
 AROS_URL="$(
   { grep -oE 'href="[^"]*amiga-m68k-boot-iso[^"]*"' "$index_html" || true; } \
@@ -36,7 +38,9 @@ else
 fi
 
 archive="$OUT_DIR/$AROS_ARCHIVE"
-curl --fail --location --retry 3 --retry-delay 2 "$AROS_URL" -o "$archive"
+curl --fail --location --retry 3 --retry-delay 2 \
+  --connect-timeout 15 --max-time 300 \
+  "$AROS_URL" -o "$archive"
 sha256sum "$archive" | tee "$OUT_DIR/archive.sha256"
 
 rm -rf "$OUT_DIR/archive-extracted"
