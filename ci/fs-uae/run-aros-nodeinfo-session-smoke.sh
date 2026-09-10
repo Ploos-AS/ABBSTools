@@ -6,8 +6,8 @@ SYSTEM_DIR="build/fs-uae/aros-system"
 NATIVE_DIR="build/qualification/native"
 mkdir -p "$OUT_DIR"
 
-if [[ ! -f "$NATIVE_DIR/NodeInfo" ]]; then
-  echo "ERROR: native NodeInfo binary missing; run ci/build-native.sh first" >&2
+if [[ ! -f "$NATIVE_DIR/NodeInfoTrace" ]]; then
+  echo "ERROR: traced native NodeInfo binary missing; run ci/build-native.sh first" >&2
   exit 1
 fi
 
@@ -30,7 +30,7 @@ idle_dir="$tool_dir/ABBS-idle"
 unknown_dir="$tool_dir/ABBS-unknown"
 rm -rf "$tool_dir"
 mkdir -p "$active_dir" "$idle_dir" "$unknown_dir"
-cp "$NATIVE_DIR/NodeInfo" "$tool_dir/NodeInfo"
+cp "$NATIVE_DIR/NodeInfoTrace" "$tool_dir/NodeInfo"
 cp tests/fixtures/node_active.log "$active_dir/node1logfile"
 cp tests/fixtures/node_idle.log "$idle_dir/node1logfile"
 cp tests/fixtures/node_unknown.log "$unknown_dir/node1logfile"
@@ -89,6 +89,15 @@ has_stage() {
   fi
 }
 
+has_internal() {
+  local name="$1"
+  if [[ -f "$aros_root/abbstools-nodeinfo-internal-$name.txt" ]]; then
+    echo 1
+  else
+    echo 0
+  fi
+}
+
 active_rc="$(read_rc "$active_rc_file")"
 idle_rc="$(read_rc "$idle_rc_file")"
 unknown_rc="$(read_rc "$unknown_rc_file")"
@@ -101,6 +110,8 @@ idle_done="$(has_stage idle-done)"
 unknown_assign_done="$(has_stage unknown-assign)"
 unknown_done="$(has_stage unknown-done)"
 after_done="$(has_stage after)"
+
+internal_stages=(query-enter paths-built before-forbid after-forbid after-findport after-permit before-session before-open after-open before-read after-read before-close after-close query-exit)
 
 status=FAIL
 observation=guest_tool_failure
@@ -152,6 +163,10 @@ fi
   echo "ACTIVE_RC=$active_rc"
   echo "IDLE_RC=$idle_rc"
   echo "UNKNOWN_RC=$unknown_rc"
+  for stage in "${internal_stages[@]}"; do
+    key="$(printf '%s' "$stage" | tr '[:lower:]-' '[:upper:]_')"
+    echo "INTERNAL_${key}=$(has_internal "$stage")"
+  done
   echo "OBSERVATION=$observation"
   for pair in ACTIVE:$active IDLE:$idle UNKNOWN:$unknown; do
     label="${pair%%:*}"
