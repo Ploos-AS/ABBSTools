@@ -25,6 +25,7 @@ echo 'STEP=static-gates'
 python3 tests/check_m1_1.py
 python3 tests/check_m1_2.py
 python3 tests/check_m1_3a.py
+python3 tests/check_m2_1.py
 
 compile_tool() {
   local tool="$1"
@@ -55,6 +56,11 @@ compile_tool NodeInfo \
   src/common/abbs.c \
   src/tools/nodeinfo/main.c
 
+compile_tool NodeWatch \
+  src/common/output.c \
+  src/common/abbs.c \
+  src/tools/nodewatch/main.c
+
 echo 'STEP=native-build-NodeInfoTrace'
 rm -f build/NodeInfoTrace
 timeout "${BUILD_TIMEOUT}s" docker run --rm -v "$PWD:/work" -w /work "$IMAGE" \
@@ -72,7 +78,7 @@ cp build/NodeInfoTrace "$OUT_DIR/NodeInfoTrace"
 echo 'STEP=validate-binaries'
 : > "$OUT_DIR/file.txt"
 : > "$OUT_DIR/checksums.sha256"
-for tool in RexxPorts RexxProbe NodeInfo NodeInfoTrace; do
+for tool in RexxPorts RexxProbe NodeInfo NodeWatch NodeInfoTrace; do
   test -s "build/$tool"
   cp "build/$tool" "$OUT_DIR/$tool"
   file "$OUT_DIR/$tool" | tee -a "$OUT_DIR/file.txt"
@@ -85,10 +91,11 @@ done
 
 {
   echo 'STATUS=PASS'
-  echo 'GATE=M1_3A_NATIVE_BEBBO'
+  echo 'GATE=M2_1_NATIVE_BEBBO'
   echo "IMAGE=$IMAGE"
   echo "BINARY_REXXPORTS=$OUT_DIR/RexxPorts"
   echo "BINARY_REXXPROBE=$OUT_DIR/RexxProbe"
   echo "BINARY_NODEINFO=$OUT_DIR/NodeInfo"
+  echo "BINARY_NODEWATCH=$OUT_DIR/NodeWatch"
   echo "BINARY_NODEINFO_TRACE=$OUT_DIR/NodeInfoTrace"
 } | tee "$OUT_DIR/result.txt"
