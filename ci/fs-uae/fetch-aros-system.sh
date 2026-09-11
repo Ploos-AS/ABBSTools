@@ -2,11 +2,13 @@
 set -euo pipefail
 
 AROS_TARGET="amiga-m68k-boot-iso"
-# SourceForge currently publishes this verified m68k boot ISO under nightly2/20260901/Binaries.
-# Keep it pinned for reproducible qualification; callers may override all three values explicitly.
-AROS_BUILD_DATE="${AROS_BUILD_DATE:-20260901}"
+# The AROS download page currently links the m68k boot ISO to the 20260829 build.
+# Use SourceForge's direct download host instead of the HTML /download endpoint so
+# GitHub Actions does not depend on SourceForge page redirects or bot handling.
+# Callers may override all three values explicitly when qualification is refreshed.
+AROS_BUILD_DATE="${AROS_BUILD_DATE:-20260829}"
 AROS_ARCHIVE="${AROS_ARCHIVE:-AROS-${AROS_BUILD_DATE}-${AROS_TARGET}.zip}"
-AROS_URL="${AROS_URL:-https://sourceforge.net/projects/aros/files/nightly2/${AROS_BUILD_DATE}/Binaries/${AROS_ARCHIVE}/download}"
+AROS_URL="${AROS_URL:-https://downloads.sourceforge.net/project/aros/nightly2/${AROS_BUILD_DATE}/Binaries/${AROS_ARCHIVE}}"
 OUT_DIR="${1:-build/fs-uae/aros-system}"
 
 mkdir -p "$OUT_DIR"
@@ -18,7 +20,7 @@ if [[ -s "$OUT_DIR/system.iso" && -s "$OUT_DIR/source.txt" && -s "$OUT_DIR/archi
 fi
 
 archive="$OUT_DIR/$AROS_ARCHIVE"
-curl --fail --location --retry 3 --retry-delay 2 \
+curl --fail --location --retry 3 --retry-all-errors --retry-delay 2 \
   --connect-timeout 15 --max-time 300 \
   "$AROS_URL" -o "$archive"
 sha256sum "$archive" | tee "$OUT_DIR/archive.sha256"
