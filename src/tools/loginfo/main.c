@@ -35,6 +35,7 @@ static int contains_event(const char *line, const char *word)
     return 0;
 }
 
+#ifndef ABBSTOOLS_CI_TRACE
 static int append_u32(char *dst, ULONG size, ULONG *pos, ULONG v)
 {
     char tmp[10];
@@ -67,6 +68,7 @@ static int build_path(char *dst, ULONG size, ULONG node)
     dst[pos] = 0;
     return 1;
 }
+#endif
 
 static void count_line(const char *line, ULONG *lines, ULONG *logins, ULONG *logouts)
 {
@@ -78,8 +80,12 @@ static void count_line(const char *line, ULONG *lines, ULONG *logins, ULONG *log
 int main(int argc, char **argv)
 {
     ULONG node = 0, lines = 0, logins = 0, logouts = 0;
+#ifndef ABBSTOOLS_CI_TRACE
     char path[128];
     const char *input_path = path;
+#else
+    const char *input_path;
+#endif
     BPTR fh;
     char line[256], ch;
     ULONG len = 0;
