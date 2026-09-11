@@ -138,10 +138,12 @@ Automated qualification evidence is recorded in `docs/M3_3_QUALIFICATION.md`.
 
 ### M3.4 — ConfInfo
 
-- [ ] Establish a reliable ABBS conference-data API or file-format contract from authoritative/reference material
+- [x] Establish a reliable ABBS conference-data API or file-format contract from authoritative/reference material
 - [ ] Implement `ConfInfo` without guessing database offsets or private layouts
 - [ ] Add static, native 68000 and deterministic runtime qualification
 - [ ] Qualify against live ABBS on intended AmigaOS 2.04 baseline
+
+The source-backed conference contract is recorded in `docs/M3_4_CONF_CONTRACT.md`.
 
 ## M4 — Doors and external programs
 
