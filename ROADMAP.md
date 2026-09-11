@@ -94,11 +94,13 @@ The current AROS boot-ISO contains a `rexxsyslib.library` file, but the guest ca
 
 ### M2.4 — BBSDoctor
 
-- [ ] Define a conservative aggregate health contract over already-qualified checks
-- [ ] Implement stable machine-readable system/node summary without adding undocumented ABBS assumptions
-- [ ] Add static and native-build gates
-- [ ] Add FS-UAE + AROS deterministic runtime smoke
+- [x] Define a conservative aggregate health contract over already-qualified checks
+- [x] Implement stable machine-readable system/node summary without adding undocumented ABBS assumptions
+- [x] Add static and native-build gates
+- [x] Add FS-UAE + AROS deterministic runtime smoke
 - [ ] Qualify against live ABBS on intended AmigaOS 2.04 baseline
+
+Automated qualification evidence is recorded in `docs/M2_4_QUALIFICATION.md`.
 
 ## M3 — Users, conferences and logs
 
