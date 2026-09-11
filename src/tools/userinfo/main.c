@@ -28,7 +28,6 @@ static void emit_info(const struct AbtUserInfo *info)
 int main(int argc, char **argv)
 {
     struct AbtUserInfo info;
-    int rc;
 
 #ifdef ABBSTOOLS_CI_TRACE
     ULONG user_nr, record_size;
@@ -50,6 +49,7 @@ int main(int argc, char **argv)
     emit_info(&info);
     return ABBSTOOLS_RC_OK;
 #else
+    int rc;
     (void)parse_u32;
     if (argc != 2) {
         abt_puts("Usage: UserInfo USER\n");
