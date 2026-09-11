@@ -4,6 +4,11 @@
 
 #include "abbstools/abbs_user.h"
 
+/*
+ * Source-backed ABBS 2.x public main-port ABI.
+ * Verified against ResistanceVault/preservation-abbs20 Include/bbs.h at
+ * a51658289061a60392954187d2fe4bd209703a9d.
+ */
 #define ABBS_MAIN_PORT "ABBS mainport"
 #define MAIN_LOADUSER 0
 #define MAIN_GETCONFIG 46
@@ -12,6 +17,7 @@
 #define ERROR_NO_PORT 18
 #define MAX_USER_RECORD_SIZE 65535UL
 
+/* Must remain field-for-field compatible with public struct ABBSmsg. */
 struct AbbsMessage {
     struct Message msg;
     UWORD command;
@@ -22,12 +28,14 @@ struct AbbsMessage {
     ULONG arg;
 };
 
+/* Prefix of public struct ConfigRecord used by UserInfo. */
 struct ConfigPrefix {
     UWORD revision;
     ULONG config_size;
     ULONG user_record_size;
 };
 
+/* Prefix of public struct UserRecord used by UserInfo. */
 struct UserPrefix {
     char name[31];
     UBYTE pass_10;
@@ -96,7 +104,12 @@ int abt_abbs_user_query_name(const char *name, struct AbtUserInfo *info)
     msg.command = MAIN_GETCONFIG;
     rc = send_main(&msg);
     if (rc != ABBSTOOLS_USER_OK) return rc;
-    if (msg.error != ERROR_OK || msg.data == 0) {
+
+    /*
+     * Preserved ABBS utilities accept Main_Getconfig only when Error_OK,
+     * UserNr is non-zero, and Data points at the live ConfigRecord.
+     */
+    if (msg.error != ERROR_OK || msg.user_nr == 0 || msg.data == 0) {
         info->abbs_error = msg.error;
         return ABBSTOOLS_USER_ABBS_ERROR;
     }
