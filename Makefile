@@ -7,6 +7,7 @@ BUILD_DIR := build
 OUTPUT_OBJ := $(BUILD_DIR)/common/output.o
 AREXX_OBJ := $(BUILD_DIR)/common/arexx.o
 ABBS_OBJ := $(BUILD_DIR)/common/abbs.o
+ABBS_USER_OBJ := $(BUILD_DIR)/common/abbs_user.o
 REXXPORTS_OBJS := $(OUTPUT_OBJ) $(BUILD_DIR)/rexxports/main.o
 REXXPROBE_OBJS := $(OUTPUT_OBJ) $(AREXX_OBJ) $(BUILD_DIR)/rexxprobe/main.o
 NODEINFO_OBJS := $(OUTPUT_OBJ) $(ABBS_OBJ) $(BUILD_DIR)/nodeinfo/main.o
@@ -16,10 +17,11 @@ ASSIGNCHECK_OBJS := $(OUTPUT_OBJ) $(BUILD_DIR)/assigncheck/main.o
 BBSDOCTOR_OBJS := $(OUTPUT_OBJ) $(ABBS_OBJ) $(BUILD_DIR)/bbsdoctor/main.o
 LASTCALLS_OBJS := $(OUTPUT_OBJ) $(BUILD_DIR)/lastcalls/main.o
 LOGINFO_OBJS := $(OUTPUT_OBJ) $(BUILD_DIR)/loginfo/main.o
+USERINFO_OBJS := $(OUTPUT_OBJ) $(ABBS_USER_OBJ) $(BUILD_DIR)/userinfo/main.o
 
-.PHONY: all clean rexxports rexxprobe nodeinfo nodewatch nodecheck assigncheck bbsdoctor lastcalls loginfo check-config
+.PHONY: all clean rexxports rexxprobe nodeinfo nodewatch nodecheck assigncheck bbsdoctor lastcalls loginfo userinfo check-config
 
-all: rexxports rexxprobe nodeinfo nodewatch nodecheck assigncheck bbsdoctor lastcalls loginfo
+all: rexxports rexxprobe nodeinfo nodewatch nodecheck assigncheck bbsdoctor lastcalls loginfo userinfo
 
 check-config:
 	@echo "CC=$(CC)"
@@ -44,6 +46,8 @@ bbsdoctor: $(BUILD_DIR)/BBSDoctor
 lastcalls: $(BUILD_DIR)/LastCalls
 
 loginfo: $(BUILD_DIR)/LogInfo
+
+userinfo: $(BUILD_DIR)/UserInfo
 
 $(BUILD_DIR)/RexxPorts: $(REXXPORTS_OBJS)
 	$(CC) $(LDFLAGS) -o $@ $(REXXPORTS_OBJS)
@@ -72,7 +76,10 @@ $(BUILD_DIR)/LastCalls: $(LASTCALLS_OBJS)
 $(BUILD_DIR)/LogInfo: $(LOGINFO_OBJS)
 	$(CC) $(LDFLAGS) -o $@ $(LOGINFO_OBJS)
 
-$(BUILD_DIR)/common/%.o: src/common/%.c include/abbstools/common.h include/abbstools/arexx.h include/abbstools/abbs.h
+$(BUILD_DIR)/UserInfo: $(USERINFO_OBJS)
+	$(CC) $(LDFLAGS) -o $@ $(USERINFO_OBJS)
+
+$(BUILD_DIR)/common/%.o: src/common/%.c include/abbstools/common.h include/abbstools/arexx.h include/abbstools/abbs.h include/abbstools/abbs_user.h
 	@mkdir -p $(dir $@)
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
 
@@ -109,6 +116,10 @@ $(BUILD_DIR)/lastcalls/%.o: src/tools/lastcalls/%.c include/abbstools/common.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
 
 $(BUILD_DIR)/loginfo/%.o: src/tools/loginfo/%.c include/abbstools/common.h
+	@mkdir -p $(dir $@)
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
+
+$(BUILD_DIR)/userinfo/%.o: src/tools/userinfo/%.c include/abbstools/common.h include/abbstools/abbs_user.h
 	@mkdir -p $(dir $@)
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
 
