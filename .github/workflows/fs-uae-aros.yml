@@ -68,11 +68,15 @@ jobs:
         timeout-minutes: 8
         run: bash ci/fs-uae/run-aros-loginfo-smoke.sh
 
+      - name: Gate 11 - execute UserInfo deterministic fixture inside AROS guest
+        timeout-minutes: 8
+        run: bash ci/fs-uae/run-aros-userinfo-smoke.sh
+
       - name: Upload qualification evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: fs-uae-aros-m3-2-qualification
+          name: fs-uae-aros-m3-3-qualification
           path: |
             build/qualification/native/RexxPorts
             build/qualification/native/RexxProbe
@@ -83,12 +87,14 @@ jobs:
             build/qualification/native/BBSDoctor
             build/qualification/native/LastCalls
             build/qualification/native/LogInfo
+            build/qualification/native/UserInfo
             build/qualification/native/NodeWatchTrace
             build/qualification/native/NodeCheckTrace
             build/qualification/native/AssignCheckTrace
             build/qualification/native/BBSDoctorTrace
             build/qualification/native/LastCallsTrace
             build/qualification/native/LogInfoTrace
+            build/qualification/native/UserInfoTrace
             build/qualification/native/result.txt
             build/qualification/native/checksums.sha256
             build/qualification/native/file.txt
@@ -130,4 +136,8 @@ jobs:
             build/fs-uae/aros-loginfo/fs-uae.log
             build/fs-uae/aros-loginfo/fs-uae-version.txt
             build/fs-uae/aros-loginfo/aros-guest.fs-uae
+            build/fs-uae/aros-userinfo/result.txt
+            build/fs-uae/aros-userinfo/fs-uae.log
+            build/fs-uae/aros-userinfo/fs-uae-version.txt
+            build/fs-uae/aros-userinfo/aros-guest.fs-uae
           if-no-files-found: warn
