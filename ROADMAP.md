@@ -129,10 +129,12 @@ Automated qualification evidence is recorded in `docs/M3_2_QUALIFICATION.md`.
 
 ### M3.3 — UserInfo
 
-- [ ] Establish a reliable ABBS user-data API or file-format contract from authoritative/reference material
-- [ ] Implement `UserInfo` without guessing database offsets or private layouts
-- [ ] Add static, native 68000 and deterministic runtime qualification
+- [x] Establish a reliable ABBS user-data API or file-format contract from authoritative/reference material
+- [x] Implement `UserInfo` without guessing database offsets or private layouts
+- [x] Add static, native 68000 and deterministic runtime qualification
 - [ ] Qualify against live ABBS on intended AmigaOS 2.04 baseline
+
+Automated qualification evidence is recorded in `docs/M3_3_QUALIFICATION.md`.
 
 ### M3.4 — ConfInfo
 
