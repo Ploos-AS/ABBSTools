@@ -2,13 +2,13 @@
 set -euo pipefail
 
 AROS_TARGET="amiga-m68k-boot-iso"
-# The AROS download page currently links the m68k boot ISO to the 20260829 build.
-# Use SourceForge's direct download host instead of the HTML /download endpoint so
-# GitHub Actions does not depend on SourceForge page redirects or bot handling.
-# Callers may override all three values explicitly when qualification is refreshed.
-AROS_BUILD_DATE="${AROS_BUILD_DATE:-20260829}"
+# SourceForge's current nightly2 index exposes the verified m68k boot ISO as
+# AROS-20260901-amiga-m68k-boot-iso.zip under nightly2/20260901/Binaries.
+# Pin that exact artifact for reproducible qualification. Callers may override
+# all three values explicitly when the qualification baseline is refreshed.
+AROS_BUILD_DATE="${AROS_BUILD_DATE:-20260901}"
 AROS_ARCHIVE="${AROS_ARCHIVE:-AROS-${AROS_BUILD_DATE}-${AROS_TARGET}.zip}"
-AROS_URL="${AROS_URL:-https://downloads.sourceforge.net/project/aros/nightly2/${AROS_BUILD_DATE}/Binaries/${AROS_ARCHIVE}}"
+AROS_URL="${AROS_URL:-https://sourceforge.net/projects/aros/files/nightly2/${AROS_BUILD_DATE}/Binaries/${AROS_ARCHIVE}/download}"
 OUT_DIR="${1:-build/fs-uae/aros-system}"
 
 mkdir -p "$OUT_DIR"
