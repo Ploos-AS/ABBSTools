@@ -26,7 +26,10 @@ checks = {
     "stable output includes record size": '"RECORD_SIZE="' in main,
     "CI trace is deterministic": "ABBSTOOLS_CI_TRACE" in main,
     "adapter API exists": "abt_abbs_user_query_name" in header and "abt_abbs_user_query_name" in adapter,
-    "contract records main-port decision": "public ABBS main-port contract exists" in contract,
+    "contract records main-port decision": (
+        "public ABBS main-port" in contract
+        and "preferable to direct database parsing" in contract
+    ),
 }
 
 failed = False
