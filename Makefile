@@ -14,10 +14,11 @@ NODEWATCH_OBJS := $(OUTPUT_OBJ) $(ABBS_OBJ) $(BUILD_DIR)/nodewatch/main.o
 NODECHECK_OBJS := $(OUTPUT_OBJ) $(ABBS_OBJ) $(BUILD_DIR)/nodecheck/main.o
 ASSIGNCHECK_OBJS := $(OUTPUT_OBJ) $(BUILD_DIR)/assigncheck/main.o
 BBSDOCTOR_OBJS := $(OUTPUT_OBJ) $(ABBS_OBJ) $(BUILD_DIR)/bbsdoctor/main.o
+LASTCALLS_OBJS := $(OUTPUT_OBJ) $(BUILD_DIR)/lastcalls/main.o
 
-.PHONY: all clean rexxports rexxprobe nodeinfo nodewatch nodecheck assigncheck bbsdoctor check-config
+.PHONY: all clean rexxports rexxprobe nodeinfo nodewatch nodecheck assigncheck bbsdoctor lastcalls check-config
 
-all: rexxports rexxprobe nodeinfo nodewatch nodecheck assigncheck bbsdoctor
+all: rexxports rexxprobe nodeinfo nodewatch nodecheck assigncheck bbsdoctor lastcalls
 
 check-config:
 	@echo "CC=$(CC)"
@@ -39,6 +40,8 @@ assigncheck: $(BUILD_DIR)/AssignCheck
 
 bbsdoctor: $(BUILD_DIR)/BBSDoctor
 
+lastcalls: $(BUILD_DIR)/LastCalls
+
 $(BUILD_DIR)/RexxPorts: $(REXXPORTS_OBJS)
 	$(CC) $(LDFLAGS) -o $@ $(REXXPORTS_OBJS)
 
@@ -59,6 +62,9 @@ $(BUILD_DIR)/AssignCheck: $(ASSIGNCHECK_OBJS)
 
 $(BUILD_DIR)/BBSDoctor: $(BBSDOCTOR_OBJS)
 	$(CC) $(LDFLAGS) -o $@ $(BBSDOCTOR_OBJS)
+
+$(BUILD_DIR)/LastCalls: $(LASTCALLS_OBJS)
+	$(CC) $(LDFLAGS) -o $@ $(LASTCALLS_OBJS)
 
 $(BUILD_DIR)/common/%.o: src/common/%.c include/abbstools/common.h include/abbstools/arexx.h include/abbstools/abbs.h
 	@mkdir -p $(dir $@)
@@ -89,6 +95,10 @@ $(BUILD_DIR)/assigncheck/%.o: src/tools/assigncheck/%.c include/abbstools/common
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
 
 $(BUILD_DIR)/bbsdoctor/%.o: src/tools/bbsdoctor/%.c include/abbstools/common.h include/abbstools/abbs.h
+	@mkdir -p $(dir $@)
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
+
+$(BUILD_DIR)/lastcalls/%.o: src/tools/lastcalls/%.c include/abbstools/common.h
 	@mkdir -p $(dir $@)
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
 
