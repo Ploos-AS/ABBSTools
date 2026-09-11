@@ -104,7 +104,42 @@ Automated qualification evidence is recorded in `docs/M2_4_QUALIFICATION.md`.
 
 ## M3 — Users, conferences and logs
 
-Candidate tools: `UserInfo`, `ConfInfo`, `LastCalls`, `LogInfo`.
+### M3.1 — LastCalls
+
+- [x] Implement read-only caller history from `ABBS:node<N>logfile`
+- [x] Parse node, date, time, login mode and user without undocumented ABBS structures
+- [x] Bound retained events and node scanning
+- [x] Add static and native 68000 qualification
+- [x] Add deterministic FS-UAE + AROS multinode runtime gate
+- [x] Add full-buffer newest-event retention regression coverage
+- [ ] Qualify against live ABBS on intended AmigaOS 2.04 baseline
+
+Automated qualification evidence is recorded in `docs/M3_1_QUALIFICATION.md`.
+
+### M3.2 — LogInfo
+
+- [x] Implement read-only node-log statistics using `ABBS:node<N>logfile`
+- [x] Report log presence, line count, login count and logout count
+- [x] Define missing-log warning behaviour
+- [x] Add static and native 68000 qualification
+- [x] Add deterministic FS-UAE + AROS runtime gate
+- [ ] Qualify against live ABBS on intended AmigaOS 2.04 baseline
+
+Automated qualification evidence is recorded in `docs/M3_2_QUALIFICATION.md`.
+
+### M3.3 — UserInfo
+
+- [ ] Establish a reliable ABBS user-data API or file-format contract from authoritative/reference material
+- [ ] Implement `UserInfo` without guessing database offsets or private layouts
+- [ ] Add static, native 68000 and deterministic runtime qualification
+- [ ] Qualify against live ABBS on intended AmigaOS 2.04 baseline
+
+### M3.4 — ConfInfo
+
+- [ ] Establish a reliable ABBS conference-data API or file-format contract from authoritative/reference material
+- [ ] Implement `ConfInfo` without guessing database offsets or private layouts
+- [ ] Add static, native 68000 and deterministic runtime qualification
+- [ ] Qualify against live ABBS on intended AmigaOS 2.04 baseline
 
 ## M4 — Doors and external programs
 
