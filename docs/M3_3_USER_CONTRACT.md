@@ -11,13 +11,17 @@ The preserved ABBS 2.x source tree at `ResistanceVault/preservation-abbs20`, com
 `Include/bbs.h` defines:
 
 - main public port name: `ABBS mainport`
-- `struct ABBSmsg`
+- exact public `struct ABBSmsg` field order: `Message`, `UWORD Command`, `UWORD Error`, `ULONG Data`, `char *Name`, `ULONG UserNr`, `ULONG arg`
 - `Main_loaduser = 0`
 - `Main_getusername = 3`
 - `Main_getusernumber = 4`
 - `Main_loadusernr = 25`
 - `Main_Getconfig = 46`
-- public error values including `Error_OK`, `Error_Not_Found`, `Error_Read`, `Error_NoMem` and `Error_NoPort`
+- `Error_OK = 0`
+- `Error_Not_Found = 1`
+- `Error_NoMem = 17`
+- `Error_NoPort = 18`
+- `NameT` is `char[31]`
 - `struct UserRecord`
 - `struct Log_entry`
 
@@ -32,16 +36,19 @@ n = HandleMsg(&msg);
 
 It first obtains the live configuration using `Main_Getconfig`, then allocates `config->UserrecordSize` bytes for the user buffer. This is important: the runtime record size is obtained from ABBS rather than assumed from a compile-time `sizeof(struct UserRecord)`.
 
+Preserved utilities such as `JEO/ZapFile.c` and `JEO/UserEditor.c` also establish an additional `Main_Getconfig` success condition: after `HandleMsg()` returns `Error_OK`, `msg.UserNr` must be non-zero before `msg.Data` is accepted as the live configuration pointer. ABBSTools therefore validates all three conditions: `Error_OK`, non-zero `UserNr`, and non-null `Data`.
+
 A second preserved utility uses `Main_loadusernr` with `msg.UserNr` and a caller-provided user buffer, establishing lookup by numeric user number as a supported main-port operation.
 
-`JEO/Broadcast.c` documents the public message exchange pattern:
+The preserved `HandleMsg()` implementation demonstrates the public message exchange pattern:
 
-1. create a reply `MsgPort`;
-2. find `ABBS mainport`;
+1. use a reply `MsgPort`;
+2. `Forbid()` and find `ABBS mainport`;
 3. `PutMsg()` an `ABBSmsg` to the main port;
-4. wait on the reply port;
-5. retrieve the replied `ABBSmsg`;
-6. use `msg.Error` as the ABBS result.
+4. `Permit()`;
+5. wait on the reply port;
+6. retrieve the replied `ABBSmsg`;
+7. return `msg.Error`, or `Error_NoPort` if the public main port does not exist.
 
 ## On-disk evidence
 
@@ -51,7 +58,7 @@ This is useful forensic/compatibility evidence, but **M3.3 UserInfo will not use
 
 ## Qualified implementation direction
 
-`UserInfo` should be a read-only client of `ABBS mainport`.
+`UserInfo` is a read-only client of `ABBS mainport`.
 
 Initial CLI contract:
 
@@ -61,40 +68,49 @@ UserInfo USER
 
 `USER` may initially be a username. Numeric lookup can be added through the same adapter once its exact command semantics are covered by deterministic tests.
 
-The adapter should:
+The adapter:
 
-1. find `ABBS mainport`;
-2. create a private reply port;
-3. call `Main_Getconfig` to obtain the live `UserrecordSize`;
-4. allocate a zeroed buffer of exactly that size;
-5. call `Main_loaduser` with the requested name and buffer;
-6. copy only explicitly supported fields into an ABBSTools-owned result structure before freeing the ABBS buffer;
-7. never modify or save the returned record.
+1. finds `ABBS mainport`;
+2. creates a private reply port;
+3. calls `Main_Getconfig` and requires `Error_OK`, non-zero `UserNr`, and non-null `Data`;
+4. obtains the live `UserrecordSize` from the returned configuration;
+5. allocates a zeroed buffer of exactly that size;
+6. calls `Main_loaduser` with the requested name and buffer;
+7. copies only explicitly supported fields into an ABBSTools-owned result structure before freeing the ABBS buffer;
+8. never modifies or saves the returned record.
 
-Initial safe output fields should be limited to fields demonstrated by preserved ABBS code and useful for diagnostics, for example:
+Initial safe output is intentionally conservative:
 
 - `NAME`
 - `USER_NR`
-- `CITY_STATE`
-- `TIMES_ON`
-- `MSGS_LEFT`
-- `MSGS_READ`
-- `TOTAL_TIME`
-- `UPLOADED`
-- `DOWNLOADED`
-- `KB_UPLOADED`
-- `KB_DOWNLOADED`
+- `RECORD_SIZE`
 
-Sensitive fields such as password and telephone numbers must not be emitted by `UserInfo`.
+Sensitive fields such as password and telephone numbers are not emitted by `UserInfo`.
+
+## ABI verification status
+
+The production adapter has now been compared directly with the preserved public ABBS 2.x definitions. The following are source-verified:
+
+- `struct ABBSmsg` field order and types used by the adapter;
+- `Main_loaduser = 0`;
+- `Main_Getconfig = 46`;
+- `Error_Not_Found = 1`;
+- `Error_NoPort = 18`;
+- 31-byte `NameT` storage;
+- `UserRecord` begins with `NameT Name`, `UBYTE pass_10`, `ULONG Usernr`;
+- `ConfigRecord` exposes the runtime `UserrecordSize` used by preserved ABBS utilities;
+- `Main_Getconfig` requires the non-zero `UserNr` success sentinel before using `Data`.
+
+This closes the known static ABI uncertainty in the M3.3 adapter. It does **not** replace live qualification against the intended ABBS installation.
 
 ## Compatibility boundary
 
-The preserved source is ABBS 2.x evidence. ABBSTools targets the user's ABBS environment and AmigaOS 2.04+, so this contract is **source-backed but not yet runtime-qualified against the intended live ABBS version**.
+The preserved source is ABBS 2.x evidence. ABBSTools targets the user's ABBS environment and AmigaOS 2.04+, so this contract is source-backed and the adapter ABI is statically verified, but it is **not yet runtime-qualified against the intended live ABBS version**.
 
-Therefore M3.3 implementation must keep the ABBS main-port details behind a small adapter and retain a live qualification item before final compatibility claims.
+Therefore M3.3 retains a live qualification item before final compatibility claims.
 
 ## Decision
 
-M3.3 is no longer blocked on an unknown user database layout. A public ABBS main-port contract exists and is preferable to direct database parsing.
+M3.3 is no longer blocked on an unknown user database layout or an unverified public-message ABI. A source-backed ABBS main-port contract exists and is preferable to direct database parsing.
 
-Next implementation step: add the minimal main-port request adapter plus a conservative `UserInfo` foundation, with CI trace/fake-adapter coverage first and live ABBS qualification later.
+Next step: keep CI/native/AROS qualification green with the verified adapter, then perform live ABBS/AmigaOS qualification when the real ABBS environment is available.
