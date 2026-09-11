@@ -102,17 +102,17 @@ static void retain_event(const struct Event *e, ULONG limit)
 {
     ULONG pos = 0;
     ULONG i;
-    while (pos < event_count && textcmp(events[pos].key, e->key) <= 0) ++pos;
-    if (event_count < limit) {
-        for (i = event_count; i > pos; --i) events[i] = events[i - 1];
-        events[pos] = *e;
-        ++event_count;
-    } else if (pos < limit) {
-        for (i = 1; i < pos; ++i) events[i - 1] = events[i];
-        if (pos > 0) --pos;
-        for (i = event_count - 1; i > pos; --i) events[i] = events[i - 1];
-        events[pos] = *e;
+
+    if (event_count == limit) {
+        if (textcmp(e->key, events[0].key) <= 0) return;
+        for (i = 1; i < event_count; ++i) events[i - 1] = events[i];
+        --event_count;
     }
+
+    while (pos < event_count && textcmp(events[pos].key, e->key) <= 0) ++pos;
+    for (i = event_count; i > pos; --i) events[i] = events[i - 1];
+    events[pos] = *e;
+    ++event_count;
 }
 
 static int append_u32(char *dst, ULONG size, ULONG *pos, ULONG v)
