@@ -18,11 +18,36 @@ curl --fail --location --retry 3 --retry-delay 2 \
   --connect-timeout 15 --max-time 120 \
   "$AROS_INDEX_URL" -o "$index_html"
 
-AROS_URL="$(
-  { grep -oE 'href="[^"]*amiga-m68k-boot-iso[^"]*"' "$index_html" || true; } \
-    | head -n 1 \
-    | sed -e 's/^href="//' -e 's/"$//' -e 's/&amp;/\&/g'
-)"
+AROS_URL="$(python3 - "$index_html" "$AROS_TARGET" <<'PY'
+import html
+import re
+import sys
+from pathlib import Path
+
+path = Path(sys.argv[1])
+target = sys.argv[2]
+text = path.read_text(errors="replace")
+
+# Older index pages included the target name inside the href itself.
+m = re.search(r'href=["\']([^"\']*' + re.escape(target) + r'[^"\']*)["\']', text, re.I)
+if m:
+    print(html.unescape(m.group(1)))
+    raise SystemExit(0)
+
+# Current pages render the target as row text and a generic "Download" link.
+pos = text.find(target)
+if pos >= 0:
+    window = text[pos:pos + 12000]
+    candidates = re.findall(r'href=["\']([^"\']+)["\']', window, re.I)
+    for href in candidates:
+        href = html.unescape(href)
+        if "/projects/aros/files/" in href and ("/download" in href or target in href):
+            print(href)
+            raise SystemExit(0)
+
+raise SystemExit(1)
+PY
+)" || true
 
 if [[ -z "$AROS_URL" ]]; then
   echo "ERROR: could not resolve $AROS_TARGET from $AROS_INDEX_URL" >&2
@@ -32,7 +57,7 @@ fi
 case "$AROS_URL" in
   http://*|https://*) ;;
   //*) AROS_URL="https:${AROS_URL}" ;;
-  /*) AROS_URL="https://aros.sourceforge.io${AROS_URL}" ;;
+  /*) AROS_URL="https://sourceforge.net${AROS_URL}" ;;
   *) AROS_URL="https://aros.sourceforge.io/${AROS_URL}" ;;
 esac
 
