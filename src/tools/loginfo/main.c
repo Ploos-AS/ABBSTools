@@ -112,7 +112,7 @@ int main(int argc, char **argv)
     if (!fh) {
         abt_puts("LOG_PRESENT=NO\n");
         abt_puts("LINES=0\nLOGIN_RECORDS=0\nLOGOUT_RECORDS=0\n");
-        return ABBSTOOLS_RC_WARNING;
+        return ABBSTOOLS_RC_WARN;
     }
 
     while ((got = Read(fh, &ch, 1)) == 1) {
