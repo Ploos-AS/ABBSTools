@@ -12,7 +12,7 @@ permissions:
 jobs:
   aros-runtime:
     runs-on: ubuntu-24.04
-    timeout-minutes: 65
+    timeout-minutes: 75
     steps:
       - uses: actions/checkout@v4
 
@@ -64,11 +64,15 @@ jobs:
         timeout-minutes: 8
         run: bash ci/fs-uae/run-aros-lastcalls-smoke.sh
 
+      - name: Gate 10 - execute LogInfo log statistics fixture inside AROS guest
+        timeout-minutes: 8
+        run: bash ci/fs-uae/run-aros-loginfo-smoke.sh
+
       - name: Upload qualification evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: fs-uae-aros-m3-1-qualification
+          name: fs-uae-aros-m3-2-qualification
           path: |
             build/qualification/native/RexxPorts
             build/qualification/native/RexxProbe
@@ -78,11 +82,13 @@ jobs:
             build/qualification/native/AssignCheck
             build/qualification/native/BBSDoctor
             build/qualification/native/LastCalls
+            build/qualification/native/LogInfo
             build/qualification/native/NodeWatchTrace
             build/qualification/native/NodeCheckTrace
             build/qualification/native/AssignCheckTrace
             build/qualification/native/BBSDoctorTrace
             build/qualification/native/LastCallsTrace
+            build/qualification/native/LogInfoTrace
             build/qualification/native/result.txt
             build/qualification/native/checksums.sha256
             build/qualification/native/file.txt
@@ -120,4 +126,8 @@ jobs:
             build/fs-uae/aros-lastcalls/fs-uae.log
             build/fs-uae/aros-lastcalls/fs-uae-version.txt
             build/fs-uae/aros-lastcalls/aros-guest.fs-uae
+            build/fs-uae/aros-loginfo/result.txt
+            build/fs-uae/aros-loginfo/fs-uae.log
+            build/fs-uae/aros-loginfo/fs-uae-version.txt
+            build/fs-uae/aros-loginfo/aros-guest.fs-uae
           if-no-files-found: warn
