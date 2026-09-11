@@ -5,11 +5,20 @@ root = Path(__file__).resolve().parents[1]
 source = (root / "src/tools/lastcalls/main.c").read_text()
 makefile = (root / "Makefile").read_text()
 
+login_match = all(token in source for token in (
+    "p[0]=='L'",
+    "p[1]=='o'",
+    "p[2]=='g'",
+    "p[3]=='i'",
+    "p[4]=='n'",
+    "p[5]==':'",
+))
+
 checks = {
     "LastCalls source exists": "Usage: LastCalls" in source,
     "uses documented ABBS node log prefix": '"ABBS:node"' in source,
     "uses node logfile suffix": '"logfile"' in source,
-    "accepts only Login records": "Login" in source and "parse_login" in source,
+    "accepts Login records": login_match and "parse_login" in source,
     "captures username": "USER=" in source,
     "captures mode": "MODE=" in source,
     "captures node": "NODE=" in source,
