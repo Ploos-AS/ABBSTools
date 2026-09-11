@@ -30,14 +30,18 @@ rm -rf "$tool_dir"
 mkdir -p "$logs_dir"
 cp "$NATIVE_DIR/LastCallsTrace" "$tool_dir/LastCalls"
 
+# COUNT=3 with more than three login events deliberately fills the retention
+# buffer from node 1 before node 2 is scanned. The newer node-2 event must
+# displace the oldest retained event; the older late-scanned node-2 event must
+# not displace any of the newest three.
 cat > "$logs_dir/node1logfile" <<'EOF'
-23:41 09/08-26 Login: Per Ousdal (local)
-23:42 09/08-26 Logout: Per Ousdal
+23:00 09/08-26 Login: Old One (local)
+23:30 09/08-26 Login: Per Ousdal (local)
 00:20 10/08-26 Login: Alice Example (telnet)
 EOF
 cat > "$logs_dir/node2logfile" <<'EOF'
+22:00 09/08-26 Login: Too Old (local)
 00:10 10/08-26 Login: Bob User (local)
-00:11 10/08-26 Logout: Bob User
 EOF
 
 cp "$startup" "$startup.abbstools-original"
@@ -78,11 +82,13 @@ observation=guest_tool_failure
 if [[ "$started" == 1 && "$done_stage" == 1 && "$rc" == "0" && -f "$output" ]] \
    && tr -d '\r' < "$output" | grep -q '^LOGS_FOUND=2$' \
    && tr -d '\r' < "$output" | grep -q '^CALLERS=3$' \
-   && tr -d '\r' < "$output" | grep -q '^CALLER INDEX=1 NODE=1 DATE=09/08-26 TIME=23:41 MODE=local USER=Per Ousdal$' \
+   && tr -d '\r' < "$output" | grep -q '^CALLER INDEX=1 NODE=1 DATE=09/08-26 TIME=23:30 MODE=local USER=Per Ousdal$' \
    && tr -d '\r' < "$output" | grep -q '^CALLER INDEX=2 NODE=2 DATE=10/08-26 TIME=00:10 MODE=local USER=Bob User$' \
-   && tr -d '\r' < "$output" | grep -q '^CALLER INDEX=3 NODE=1 DATE=10/08-26 TIME=00:20 MODE=telnet USER=Alice Example$'; then
+   && tr -d '\r' < "$output" | grep -q '^CALLER INDEX=3 NODE=1 DATE=10/08-26 TIME=00:20 MODE=telnet USER=Alice Example$' \
+   && ! tr -d '\r' < "$output" | grep -q 'USER=Old One$' \
+   && ! tr -d '\r' < "$output" | grep -q 'USER=Too Old$'; then
   status=PASS
-  observation=guest_executed_lastcalls_multinode_fixture
+  observation=guest_executed_lastcalls_full_buffer_retention_fixture
 elif [[ "$started" != 1 ]]; then
   observation=guest_startup_not_reached
 elif [[ "$done_stage" != 1 ]]; then
