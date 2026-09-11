@@ -12,7 +12,7 @@ permissions:
 jobs:
   aros-runtime:
     runs-on: ubuntu-24.04
-    timeout-minutes: 75
+    timeout-minutes: 85
     steps:
       - uses: actions/checkout@v4
 
@@ -29,7 +29,7 @@ jobs:
         run: bash ci/fs-uae/fetch-aros-system.sh build/fs-uae/aros-system
 
       - name: Gate 1 - native 68000 build
-        timeout-minutes: 5
+        timeout-minutes: 6
         run: bash ci/build-native.sh
 
       - name: Gate 2 - execute RexxPorts inside AROS guest
@@ -72,11 +72,15 @@ jobs:
         timeout-minutes: 8
         run: bash ci/fs-uae/run-aros-userinfo-smoke.sh
 
+      - name: Gate 12 - execute ConfInfo deterministic fixture inside AROS guest
+        timeout-minutes: 8
+        run: bash ci/fs-uae/run-aros-confinfo-smoke.sh
+
       - name: Upload qualification evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: fs-uae-aros-m3-3-qualification
+          name: fs-uae-aros-m3-4-qualification
           path: |
             build/qualification/native/RexxPorts
             build/qualification/native/RexxProbe
@@ -88,6 +92,7 @@ jobs:
             build/qualification/native/LastCalls
             build/qualification/native/LogInfo
             build/qualification/native/UserInfo
+            build/qualification/native/ConfInfo
             build/qualification/native/NodeWatchTrace
             build/qualification/native/NodeCheckTrace
             build/qualification/native/AssignCheckTrace
@@ -95,6 +100,7 @@ jobs:
             build/qualification/native/LastCallsTrace
             build/qualification/native/LogInfoTrace
             build/qualification/native/UserInfoTrace
+            build/qualification/native/ConfInfoTrace
             build/qualification/native/result.txt
             build/qualification/native/checksums.sha256
             build/qualification/native/file.txt
@@ -140,4 +146,8 @@ jobs:
             build/fs-uae/aros-userinfo/fs-uae.log
             build/fs-uae/aros-userinfo/fs-uae-version.txt
             build/fs-uae/aros-userinfo/aros-guest.fs-uae
+            build/fs-uae/aros-confinfo/result.txt
+            build/fs-uae/aros-confinfo/fs-uae.log
+            build/fs-uae/aros-confinfo/fs-uae-version.txt
+            build/fs-uae/aros-confinfo/aros-guest.fs-uae
           if-no-files-found: warn
