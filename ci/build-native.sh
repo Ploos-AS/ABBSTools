@@ -32,6 +32,7 @@ python3 tests/check_m2_4.py
 python3 tests/check_m3_1.py
 python3 tests/check_m3_2.py
 python3 tests/check_m3_3.py
+python3 tests/check_m3_4.py
 
 compile_tool() {
   local tool="$1"
@@ -58,6 +59,7 @@ compile_tool BBSDoctor src/common/output.c src/common/abbs.c src/tools/bbsdoctor
 compile_tool LastCalls src/common/output.c src/tools/lastcalls/main.c
 compile_tool LogInfo src/common/output.c src/tools/loginfo/main.c
 compile_tool UserInfo src/common/output.c src/common/abbs_user.c src/tools/userinfo/main.c
+compile_tool ConfInfo src/common/output.c src/common/abbs_conf.c src/tools/confinfo/main.c
 
 build_trace_tool() {
   local tool="$1"
@@ -86,11 +88,12 @@ build_trace_tool BBSDoctor src/tools/bbsdoctor/main.c src/common/abbs.c
 build_trace_tool LastCalls src/tools/lastcalls/main.c
 build_trace_tool LogInfo src/tools/loginfo/main.c
 build_trace_tool UserInfo src/tools/userinfo/main.c
+build_trace_tool ConfInfo src/tools/confinfo/main.c
 
 echo 'STEP=validate-binaries'
 : > "$OUT_DIR/file.txt"
 : > "$OUT_DIR/checksums.sha256"
-for tool in RexxPorts RexxProbe NodeInfo NodeWatch NodeCheck AssignCheck BBSDoctor LastCalls LogInfo UserInfo NodeInfoTrace NodeWatchTrace NodeCheckTrace AssignCheckTrace BBSDoctorTrace LastCallsTrace LogInfoTrace UserInfoTrace; do
+for tool in RexxPorts RexxProbe NodeInfo NodeWatch NodeCheck AssignCheck BBSDoctor LastCalls LogInfo UserInfo ConfInfo NodeInfoTrace NodeWatchTrace NodeCheckTrace AssignCheckTrace BBSDoctorTrace LastCallsTrace LogInfoTrace UserInfoTrace ConfInfoTrace; do
   test -s "build/$tool"
   cp "build/$tool" "$OUT_DIR/$tool"
   file "$OUT_DIR/$tool" | tee -a "$OUT_DIR/file.txt"
@@ -103,7 +106,7 @@ done
 
 {
   echo 'STATUS=PASS'
-  echo 'GATE=M3_3_NATIVE_BEBBO'
+  echo 'GATE=M3_4_NATIVE_BEBBO'
   echo "IMAGE=$IMAGE"
   echo "BINARY_REXXPORTS=$OUT_DIR/RexxPorts"
   echo "BINARY_REXXPROBE=$OUT_DIR/RexxProbe"
@@ -115,6 +118,7 @@ done
   echo "BINARY_LASTCALLS=$OUT_DIR/LastCalls"
   echo "BINARY_LOGINFO=$OUT_DIR/LogInfo"
   echo "BINARY_USERINFO=$OUT_DIR/UserInfo"
+  echo "BINARY_CONFINFO=$OUT_DIR/ConfInfo"
   echo "BINARY_NODEINFO_TRACE=$OUT_DIR/NodeInfoTrace"
   echo "BINARY_NODEWATCH_TRACE=$OUT_DIR/NodeWatchTrace"
   echo "BINARY_NODECHECK_TRACE=$OUT_DIR/NodeCheckTrace"
@@ -123,4 +127,5 @@ done
   echo "BINARY_LASTCALLS_TRACE=$OUT_DIR/LastCallsTrace"
   echo "BINARY_LOGINFO_TRACE=$OUT_DIR/LogInfoTrace"
   echo "BINARY_USERINFO_TRACE=$OUT_DIR/UserInfoTrace"
+  echo "BINARY_CONFINFO_TRACE=$OUT_DIR/ConfInfoTrace"
 } | tee "$OUT_DIR/result.txt"
