@@ -139,15 +139,32 @@ Automated qualification evidence is recorded in `docs/M3_3_QUALIFICATION.md`.
 ### M3.4 — ConfInfo
 
 - [x] Establish a reliable ABBS conference-data API or file-format contract from authoritative/reference material
-- [ ] Implement `ConfInfo` without guessing database offsets or private layouts
-- [ ] Add static, native 68000 and deterministic runtime qualification
+- [x] Implement `ConfInfo` without guessing database offsets or private layouts
+- [x] Add static, native 68000 and deterministic runtime qualification
 - [ ] Qualify against live ABBS on intended AmigaOS 2.04 baseline
 
-The source-backed conference contract is recorded in `docs/M3_4_CONF_CONTRACT.md`.
+The source-backed conference contract is recorded in `docs/M3_4_CONF_CONTRACT.md`. Automated qualification evidence is recorded in `docs/M3_4_QUALIFICATION.md`.
 
 ## M4 — Doors and external programs
 
-Candidate tools: `DoorInfo`, `DoorCheck`, and ABBS-relevant drop-file inspection/validation.
+### M4.1 — DoorInfo
+
+- [x] Establish a conservative source-backed/no-guess door inspection contract
+- [x] Implement read-only `DoorInfo PATH`
+- [x] Add static and native 68000 qualification
+- [x] Add deterministic FS-UAE + AROS filesystem runtime qualification
+- [ ] Qualify against live ABBS on intended AmigaOS 2.04 baseline
+
+Automated qualification evidence is recorded in `docs/M4_1_QUALIFICATION.md`.
+
+### M4.2 — DoorCheck
+
+- [ ] Define a conservative validation contract without inventing a generic ABBS door registry or drop-file format
+- [ ] Implement `DoorCheck`
+- [ ] Add static, native 68000 and deterministic runtime qualification
+- [ ] Qualify against live ABBS on intended AmigaOS 2.04 baseline
+
+ABBS-relevant drop-file inspection/validation remains deferred until a reliable source-backed contract is established.
 
 ## M5 — TCP and remote-node diagnostics
 
