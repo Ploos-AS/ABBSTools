@@ -175,7 +175,16 @@ The M4.2 contract is recorded in `docs/M4_2_DOORCHECK_CONTRACT.md`. Automated qu
 - [x] Add static, native 68000 and deterministic runtime qualification
 - [ ] Qualify against live ABBS/`abbstcp.device` on intended AmigaOS 2.04 baseline
 
-The M5.1 contract is recorded in `docs/M5_1_TCPINFO_CONTRACT.md`. Automated qualification evidence is recorded in `docs/M5_1_QUALIFICATION.md`. Later M5 work may add Telnet/integration diagnostics only where a reliable device or protocol contract is established.
+The M5.1 contract is recorded in `docs/M5_1_TCPINFO_CONTRACT.md`. Automated qualification evidence is recorded in `docs/M5_1_QUALIFICATION.md`.
+
+### M5.2 — Deeper device/TCP status ABI research
+
+- [x] Inspect the current public `ABBS-TCPDevice` header and device contract
+- [x] Determine whether a stable read-only query/status ABI exists
+- [x] Refuse private test commands and undocumented implementation-state coupling
+- [x] Record conservative NO-GO decision for socket/Telnet/peer-state introspection
+
+The decision is recorded in `docs/M5_2_ABI_RESEARCH.md`. Deeper TCPInfo diagnostics are deferred until `ABBS-TCPDevice` publishes and qualifies a stable read-only status/query ABI or another authoritative contract is established. M5 implementation scope is therefore complete; live M5.1 qualification remains pending.
 
 ## M6 — Optional observability
 
