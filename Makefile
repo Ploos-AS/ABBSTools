@@ -21,10 +21,11 @@ LOGINFO_OBJS := $(OUTPUT_OBJ) $(BUILD_DIR)/loginfo/main.o
 USERINFO_OBJS := $(OUTPUT_OBJ) $(ABBS_USER_OBJ) $(BUILD_DIR)/userinfo/main.o
 CONFINFO_OBJS := $(OUTPUT_OBJ) $(ABBS_CONF_OBJ) $(BUILD_DIR)/confinfo/main.o
 DOORINFO_OBJS := $(OUTPUT_OBJ) $(BUILD_DIR)/doorinfo/main.o
+DOORCHECK_OBJS := $(OUTPUT_OBJ) $(BUILD_DIR)/doorcheck/main.o
 
-.PHONY: all clean rexxports rexxprobe nodeinfo nodewatch nodecheck assigncheck bbsdoctor lastcalls loginfo userinfo confinfo doorinfo check-config
+.PHONY: all clean rexxports rexxprobe nodeinfo nodewatch nodecheck assigncheck bbsdoctor lastcalls loginfo userinfo confinfo doorinfo doorcheck check-config
 
-all: rexxports rexxprobe nodeinfo nodewatch nodecheck assigncheck bbsdoctor lastcalls loginfo userinfo confinfo doorinfo
+all: rexxports rexxprobe nodeinfo nodewatch nodecheck assigncheck bbsdoctor lastcalls loginfo userinfo confinfo doorinfo doorcheck
 
 check-config:
 	@echo "CC=$(CC)"
@@ -44,6 +45,7 @@ loginfo: $(BUILD_DIR)/LogInfo
 userinfo: $(BUILD_DIR)/UserInfo
 confinfo: $(BUILD_DIR)/ConfInfo
 doorinfo: $(BUILD_DIR)/DoorInfo
+doorcheck: $(BUILD_DIR)/DoorCheck
 
 $(BUILD_DIR)/RexxPorts: $(REXXPORTS_OBJS)
 	$(CC) $(LDFLAGS) -o $@ $(REXXPORTS_OBJS)
@@ -69,6 +71,8 @@ $(BUILD_DIR)/ConfInfo: $(CONFINFO_OBJS)
 	$(CC) $(LDFLAGS) -o $@ $(CONFINFO_OBJS)
 $(BUILD_DIR)/DoorInfo: $(DOORINFO_OBJS)
 	$(CC) $(LDFLAGS) -o $@ $(DOORINFO_OBJS)
+$(BUILD_DIR)/DoorCheck: $(DOORCHECK_OBJS)
+	$(CC) $(LDFLAGS) -o $@ $(DOORCHECK_OBJS)
 
 $(BUILD_DIR)/common/%.o: src/common/%.c include/abbstools/common.h include/abbstools/arexx.h include/abbstools/abbs.h include/abbstools/abbs_user.h include/abbstools/abbs_conf.h
 	@mkdir -p $(dir $@)
@@ -108,6 +112,9 @@ $(BUILD_DIR)/confinfo/%.o: src/tools/confinfo/%.c include/abbstools/common.h inc
 	@mkdir -p $(dir $@)
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
 $(BUILD_DIR)/doorinfo/%.o: src/tools/doorinfo/%.c include/abbstools/common.h
+	@mkdir -p $(dir $@)
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
+$(BUILD_DIR)/doorcheck/%.o: src/tools/doorcheck/%.c include/abbstools/common.h
 	@mkdir -p $(dir $@)
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
 
