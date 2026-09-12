@@ -12,7 +12,7 @@ permissions:
 jobs:
   aros-runtime:
     runs-on: ubuntu-24.04
-    timeout-minutes: 85
+    timeout-minutes: 95
     steps:
       - uses: actions/checkout@v4
 
@@ -76,11 +76,15 @@ jobs:
         timeout-minutes: 8
         run: bash ci/fs-uae/run-aros-confinfo-smoke.sh
 
+      - name: Gate 13 - execute DoorInfo filesystem fixtures inside AROS guest
+        timeout-minutes: 8
+        run: bash ci/fs-uae/run-aros-doorinfo-smoke.sh
+
       - name: Upload qualification evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: fs-uae-aros-m3-4-qualification
+          name: fs-uae-aros-m4-1-qualification
           path: |
             build/qualification/native/RexxPorts
             build/qualification/native/RexxProbe
@@ -93,6 +97,7 @@ jobs:
             build/qualification/native/LogInfo
             build/qualification/native/UserInfo
             build/qualification/native/ConfInfo
+            build/qualification/native/DoorInfo
             build/qualification/native/NodeWatchTrace
             build/qualification/native/NodeCheckTrace
             build/qualification/native/AssignCheckTrace
@@ -101,6 +106,7 @@ jobs:
             build/qualification/native/LogInfoTrace
             build/qualification/native/UserInfoTrace
             build/qualification/native/ConfInfoTrace
+            build/qualification/native/DoorInfoTrace
             build/qualification/native/result.txt
             build/qualification/native/checksums.sha256
             build/qualification/native/file.txt
@@ -150,4 +156,8 @@ jobs:
             build/fs-uae/aros-confinfo/fs-uae.log
             build/fs-uae/aros-confinfo/fs-uae-version.txt
             build/fs-uae/aros-confinfo/aros-guest.fs-uae
+            build/fs-uae/aros-doorinfo/result.txt
+            build/fs-uae/aros-doorinfo/fs-uae.log
+            build/fs-uae/aros-doorinfo/fs-uae-version.txt
+            build/fs-uae/aros-doorinfo/aros-guest.fs-uae
           if-no-files-found: warn
