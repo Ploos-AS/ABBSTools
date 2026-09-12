@@ -36,6 +36,7 @@ python3 tests/check_m3_4.py
 python3 tests/check_m4_1.py
 python3 tests/check_m4_2.py
 python3 tests/check_m5_1.py
+python3 tests/check_m6_1.py
 
 compile_tool() {
   local tool="$1"
@@ -66,6 +67,7 @@ compile_tool ConfInfo src/common/output.c src/common/abbs_conf.c src/tools/confi
 compile_tool DoorInfo src/common/output.c src/tools/doorinfo/main.c
 compile_tool DoorCheck src/common/output.c src/tools/doorcheck/main.c
 compile_tool TCPInfo src/common/output.c src/tools/tcpinfo/main.c
+compile_tool Metrics src/common/output.c src/common/abbs.c src/tools/metrics/main.c
 
 build_trace_tool() {
   local tool="$1"
@@ -96,11 +98,12 @@ build_trace_tool LogInfo src/tools/loginfo/main.c
 build_trace_tool UserInfo src/tools/userinfo/main.c
 build_trace_tool ConfInfo src/tools/confinfo/main.c
 build_trace_tool DoorInfo src/tools/doorinfo/main.c
+build_trace_tool Metrics src/tools/metrics/main.c src/common/abbs.c
 
 echo 'STEP=validate-binaries'
 : > "$OUT_DIR/file.txt"
 : > "$OUT_DIR/checksums.sha256"
-for tool in RexxPorts RexxProbe NodeInfo NodeWatch NodeCheck AssignCheck BBSDoctor LastCalls LogInfo UserInfo ConfInfo DoorInfo DoorCheck TCPInfo NodeInfoTrace NodeWatchTrace NodeCheckTrace AssignCheckTrace BBSDoctorTrace LastCallsTrace LogInfoTrace UserInfoTrace ConfInfoTrace DoorInfoTrace; do
+for tool in RexxPorts RexxProbe NodeInfo NodeWatch NodeCheck AssignCheck BBSDoctor LastCalls LogInfo UserInfo ConfInfo DoorInfo DoorCheck TCPInfo Metrics NodeInfoTrace NodeWatchTrace NodeCheckTrace AssignCheckTrace BBSDoctorTrace LastCallsTrace LogInfoTrace UserInfoTrace ConfInfoTrace DoorInfoTrace MetricsTrace; do
   test -s "build/$tool"
   cp "build/$tool" "$OUT_DIR/$tool"
   file "$OUT_DIR/$tool" | tee -a "$OUT_DIR/file.txt"
@@ -113,7 +116,7 @@ done
 
 {
   echo 'STATUS=PASS'
-  echo 'GATE=M5_1_NATIVE_BEBBO'
+  echo 'GATE=M6_1_NATIVE_BEBBO'
   echo "IMAGE=$IMAGE"
   echo "BINARY_REXXPORTS=$OUT_DIR/RexxPorts"
   echo "BINARY_REXXPROBE=$OUT_DIR/RexxProbe"
@@ -129,6 +132,7 @@ done
   echo "BINARY_DOORINFO=$OUT_DIR/DoorInfo"
   echo "BINARY_DOORCHECK=$OUT_DIR/DoorCheck"
   echo "BINARY_TCPINFO=$OUT_DIR/TCPInfo"
+  echo "BINARY_METRICS=$OUT_DIR/Metrics"
   echo "BINARY_NODEINFO_TRACE=$OUT_DIR/NodeInfoTrace"
   echo "BINARY_NODEWATCH_TRACE=$OUT_DIR/NodeWatchTrace"
   echo "BINARY_NODECHECK_TRACE=$OUT_DIR/NodeCheckTrace"
@@ -139,4 +143,5 @@ done
   echo "BINARY_USERINFO_TRACE=$OUT_DIR/UserInfoTrace"
   echo "BINARY_CONFINFO_TRACE=$OUT_DIR/ConfInfoTrace"
   echo "BINARY_DOORINFO_TRACE=$OUT_DIR/DoorInfoTrace"
+  echo "BINARY_METRICS_TRACE=$OUT_DIR/MetricsTrace"
 } | tee "$OUT_DIR/result.txt"
