@@ -32,6 +32,7 @@ cp "$NATIVE_DIR/TCPInfo" "$tool_dir/TCPInfo"
 cp "$startup" "$startup.abbstools-original"
 cat > "$startup" <<'EOF'
 SYS:C/Echo "ABBSTOOLS_GUEST_STARTED=1" >SYS:abbstools-tcpinfo-stage-started.txt
+SYS:C/FailAt 21
 SYS:ABBSToolsTest/TCPInfo definitely-missing.device 0 >SYS:abbstools-tcpinfo-missing.txt
 SYS:C/Echo $RC >SYS:abbstools-tcpinfo-missing-rc.txt
 SYS:ABBSToolsTest/TCPInfo definitely-missing.device invalid >SYS:abbstools-tcpinfo-invalid.txt
