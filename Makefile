@@ -22,10 +22,11 @@ USERINFO_OBJS := $(OUTPUT_OBJ) $(ABBS_USER_OBJ) $(BUILD_DIR)/userinfo/main.o
 CONFINFO_OBJS := $(OUTPUT_OBJ) $(ABBS_CONF_OBJ) $(BUILD_DIR)/confinfo/main.o
 DOORINFO_OBJS := $(OUTPUT_OBJ) $(BUILD_DIR)/doorinfo/main.o
 DOORCHECK_OBJS := $(OUTPUT_OBJ) $(BUILD_DIR)/doorcheck/main.o
+TCPINFO_OBJS := $(OUTPUT_OBJ) $(BUILD_DIR)/tcpinfo/main.o
 
-.PHONY: all clean rexxports rexxprobe nodeinfo nodewatch nodecheck assigncheck bbsdoctor lastcalls loginfo userinfo confinfo doorinfo doorcheck check-config
+.PHONY: all clean rexxports rexxprobe nodeinfo nodewatch nodecheck assigncheck bbsdoctor lastcalls loginfo userinfo confinfo doorinfo doorcheck tcpinfo check-config
 
-all: rexxports rexxprobe nodeinfo nodewatch nodecheck assigncheck bbsdoctor lastcalls loginfo userinfo confinfo doorinfo doorcheck
+all: rexxports rexxprobe nodeinfo nodewatch nodecheck assigncheck bbsdoctor lastcalls loginfo userinfo confinfo doorinfo doorcheck tcpinfo
 
 check-config:
 	@echo "CC=$(CC)"
@@ -46,6 +47,7 @@ userinfo: $(BUILD_DIR)/UserInfo
 confinfo: $(BUILD_DIR)/ConfInfo
 doorinfo: $(BUILD_DIR)/DoorInfo
 doorcheck: $(BUILD_DIR)/DoorCheck
+tcpinfo: $(BUILD_DIR)/TCPInfo
 
 $(BUILD_DIR)/RexxPorts: $(REXXPORTS_OBJS)
 	$(CC) $(LDFLAGS) -o $@ $(REXXPORTS_OBJS)
@@ -73,6 +75,8 @@ $(BUILD_DIR)/DoorInfo: $(DOORINFO_OBJS)
 	$(CC) $(LDFLAGS) -o $@ $(DOORINFO_OBJS)
 $(BUILD_DIR)/DoorCheck: $(DOORCHECK_OBJS)
 	$(CC) $(LDFLAGS) -o $@ $(DOORCHECK_OBJS)
+$(BUILD_DIR)/TCPInfo: $(TCPINFO_OBJS)
+	$(CC) $(LDFLAGS) -o $@ $(TCPINFO_OBJS)
 
 $(BUILD_DIR)/common/%.o: src/common/%.c include/abbstools/common.h include/abbstools/arexx.h include/abbstools/abbs.h include/abbstools/abbs_user.h include/abbstools/abbs_conf.h
 	@mkdir -p $(dir $@)
@@ -115,6 +119,9 @@ $(BUILD_DIR)/doorinfo/%.o: src/tools/doorinfo/%.c include/abbstools/common.h
 	@mkdir -p $(dir $@)
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
 $(BUILD_DIR)/doorcheck/%.o: src/tools/doorcheck/%.c include/abbstools/common.h
+	@mkdir -p $(dir $@)
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
+$(BUILD_DIR)/tcpinfo/%.o: src/tools/tcpinfo/%.c include/abbstools/common.h
 	@mkdir -p $(dir $@)
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
 
