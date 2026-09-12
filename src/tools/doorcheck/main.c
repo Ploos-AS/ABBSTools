@@ -3,6 +3,17 @@
 
 #include "abbstools/common.h"
 
+static int streq(const char *a, const char *b)
+{
+    if (!a || !b) return 0;
+    while (*a && *b) {
+        if (*a != *b) return 0;
+        ++a;
+        ++b;
+    }
+    return *a == 0 && *b == 0;
+}
+
 static const char *type_name(LONG entry_type)
 {
     if (entry_type > 0) return "DIRECTORY";
@@ -12,13 +23,13 @@ static const char *type_name(LONG entry_type)
 
 static int valid_expected_type(const char *s)
 {
-    return abt_streq(s, "FILE") || abt_streq(s, "DIRECTORY") || abt_streq(s, "ANY");
+    return streq(s, "FILE") || streq(s, "DIRECTORY") || streq(s, "ANY");
 }
 
 static int matches_expected(const char *expected, const char *actual)
 {
-    if (abt_streq(expected, "ANY")) return 1;
-    return abt_streq(expected, actual);
+    if (streq(expected, "ANY")) return 1;
+    return streq(expected, actual);
 }
 
 static void emit_common(const char *status, const char *path, int present,
