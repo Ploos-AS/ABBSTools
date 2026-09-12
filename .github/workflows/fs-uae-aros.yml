@@ -12,7 +12,7 @@ permissions:
 jobs:
   aros-runtime:
     runs-on: ubuntu-24.04
-    timeout-minutes: 105
+    timeout-minutes: 115
     steps:
       - uses: actions/checkout@v4
 
@@ -84,11 +84,15 @@ jobs:
         timeout-minutes: 8
         run: bash ci/fs-uae/run-aros-doorcheck-smoke.sh
 
+      - name: Gate 15 - execute TCPInfo device probe contract inside AROS guest
+        timeout-minutes: 8
+        run: bash ci/fs-uae/run-aros-tcpinfo-smoke.sh
+
       - name: Upload qualification evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: fs-uae-aros-m4-2-qualification
+          name: fs-uae-aros-m5-1-qualification
           path: |
             build/qualification/native/RexxPorts
             build/qualification/native/RexxProbe
@@ -103,6 +107,7 @@ jobs:
             build/qualification/native/ConfInfo
             build/qualification/native/DoorInfo
             build/qualification/native/DoorCheck
+            build/qualification/native/TCPInfo
             build/qualification/native/NodeWatchTrace
             build/qualification/native/NodeCheckTrace
             build/qualification/native/AssignCheckTrace
@@ -169,4 +174,8 @@ jobs:
             build/fs-uae/aros-doorcheck/fs-uae.log
             build/fs-uae/aros-doorcheck/fs-uae-version.txt
             build/fs-uae/aros-doorcheck/aros-guest.fs-uae
+            build/fs-uae/aros-tcpinfo/result.txt
+            build/fs-uae/aros-tcpinfo/fs-uae.log
+            build/fs-uae/aros-tcpinfo/fs-uae-version.txt
+            build/fs-uae/aros-tcpinfo/aros-guest.fs-uae
           if-no-files-found: warn
