@@ -161,14 +161,21 @@ Automated qualification evidence is recorded in `docs/M4_1_QUALIFICATION.md`.
 
 - [x] Define a conservative validation contract without inventing a generic ABBS door registry or drop-file format
 - [x] Implement `DoorCheck`
-- [ ] Add static, native 68000 and deterministic runtime qualification
+- [x] Add static, native 68000 and deterministic runtime qualification
 - [ ] Qualify against live ABBS on intended AmigaOS 2.04 baseline
 
-The M4.2 contract is recorded in `docs/M4_2_DOORCHECK_CONTRACT.md`. ABBS-relevant drop-file inspection/validation remains deferred until a reliable source-backed contract is established.
+The M4.2 contract is recorded in `docs/M4_2_DOORCHECK_CONTRACT.md`. Automated qualification evidence is recorded in `docs/M4_2_QUALIFICATION.md`. ABBS-relevant drop-file inspection/validation remains deferred until a reliable source-backed contract is established.
 
 ## M5 — TCP and remote-node diagnostics
 
-Candidate tools: `TCPInfo`, Telnet diagnostics and integration diagnostics useful with TCP-backed ABBS node setups.
+### M5.1 — TCPInfo
+
+- [ ] Define a conservative source-backed device availability contract for `abbstcp.device`
+- [ ] Implement `TCPInfo` without guessing socket state or undocumented device internals
+- [ ] Add static, native 68000 and deterministic runtime qualification
+- [ ] Qualify against live ABBS/`abbstcp.device` on intended AmigaOS 2.04 baseline
+
+Later M5 work may add Telnet/integration diagnostics only where a reliable device or protocol contract is established.
 
 ## M6 — Optional observability
 
