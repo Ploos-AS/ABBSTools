@@ -54,16 +54,31 @@ SYS:C/Echo "ABBSTOOLS_AFTER_NODEINFO_SESSION=1" >SYS:abbstools-nodeinfo-stage-af
 SYS:C/Execute SYS:S/Startup-Sequence.abbstools-original
 EOF
 
-rm -f "$aros_root"/abbstools-nodeinfo-*.txt
-
 config="$OUT_DIR/aros-guest.fs-uae"
 sed "s|@AROS_ROOT@|$PWD/$aros_root|" ci/fs-uae/aros-guest.fs-uae > "$config"
 fs-uae --version > "$OUT_DIR/fs-uae-version.txt" 2>&1 || true
 
-set +e
-timeout 45s xvfb-run -a fs-uae "$config" > "$OUT_DIR/fs-uae.log" 2>&1
-fs_rc=$?
-set -e
+clear_guest_markers() {
+  rm -f "$aros_root"/abbstools-nodeinfo-*.txt
+}
+
+fs_rc=0
+boot_attempt=0
+boot_started=0
+for attempt in 1 2; do
+  boot_attempt="$attempt"
+  clear_guest_markers
+  set +e
+  timeout 45s xvfb-run -a fs-uae "$config" > "$OUT_DIR/fs-uae-attempt-${attempt}.log" 2>&1
+  fs_rc=$?
+  set -e
+  cp "$OUT_DIR/fs-uae-attempt-${attempt}.log" "$OUT_DIR/fs-uae.log"
+  if [[ -f "$aros_root/abbstools-nodeinfo-stage-started.txt" ]]; then
+    boot_started=1
+    break
+  fi
+  echo "WARN: NodeInfo guest startup marker missing after attempt $attempt; retrying once" >&2
+done
 
 active="$aros_root/abbstools-nodeinfo-active.txt"
 idle="$aros_root/abbstools-nodeinfo-idle.txt"
@@ -124,7 +139,7 @@ if [[ "$started" == 1 && "$after_done" == 1 && -f "$active" && -f "$idle" && -f 
   status=PASS
   observation=guest_executed_nodeinfo_session_fixtures_direct_paths
 elif [[ "$started" != 1 ]]; then
-  observation=guest_startup_not_reached
+  observation=guest_startup_not_reached_after_retry
 elif [[ "$active_path_ready" != 1 ]]; then
   observation=guest_stopped_before_active_path
 elif [[ "$active_done" != 1 ]]; then
@@ -150,6 +165,8 @@ fi
   echo "KICKSTART=internal"
   echo "FS_UAE_EXIT=$fs_rc"
   echo "FIXTURE_PATH_MODE=direct"
+  echo "BOOT_ATTEMPT=$boot_attempt"
+  echo "BOOT_STARTED=$boot_started"
   echo "STAGE_STARTED=$started"
   echo "STAGE_ACTIVE_PATH=$active_path_ready"
   echo "STAGE_ACTIVE_DONE=$active_done"
