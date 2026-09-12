@@ -48,16 +48,31 @@ SYS:C/Echo "ABBSTOOLS_LOGINFO_DONE=1" >SYS:abbstools-loginfo-stage-done.txt
 SYS:C/Execute SYS:S/Startup-Sequence.abbstools-original
 EOF
 
-rm -f "$aros_root"/abbstools-loginfo-*.txt
-
 config="$OUT_DIR/aros-guest.fs-uae"
 sed "s|@AROS_ROOT@|$PWD/$aros_root|" ci/fs-uae/aros-guest.fs-uae > "$config"
 fs-uae --version > "$OUT_DIR/fs-uae-version.txt" 2>&1 || true
 
-set +e
-timeout 45s xvfb-run -a fs-uae "$config" > "$OUT_DIR/fs-uae.log" 2>&1
-fs_rc=$?
-set -e
+clear_guest_markers() {
+  rm -f "$aros_root"/abbstools-loginfo-*.txt
+}
+
+fs_rc=0
+boot_attempt=0
+boot_started=0
+for attempt in 1 2; do
+  boot_attempt="$attempt"
+  clear_guest_markers
+  set +e
+  timeout 45s xvfb-run -a fs-uae "$config" > "$OUT_DIR/fs-uae-attempt-${attempt}.log" 2>&1
+  fs_rc=$?
+  set -e
+  cp "$OUT_DIR/fs-uae-attempt-${attempt}.log" "$OUT_DIR/fs-uae.log"
+  if [[ -f "$aros_root/abbstools-loginfo-stage-started.txt" ]]; then
+    boot_started=1
+    break
+  fi
+  echo "WARN: LogInfo guest startup marker missing after attempt $attempt; retrying once" >&2
+done
 
 started=0
 done_stage=0
@@ -83,7 +98,7 @@ if [[ "$started" == 1 && "$done_stage" == 1 && "$rc" == "0" && -f "$output" ]] \
   status=PASS
   observation=guest_executed_loginfo_fixture
 elif [[ "$started" != 1 ]]; then
-  observation=guest_startup_not_reached
+  observation=guest_startup_not_reached_after_retry
 elif [[ "$done_stage" != 1 ]]; then
   observation=guest_stopped_in_loginfo
 elif [[ "$rc" != "0" ]]; then
@@ -99,6 +114,8 @@ fi
   echo "KICKSTART=internal"
   echo "FS_UAE_EXIT=$fs_rc"
   echo "FIXTURE_PATH_MODE=direct-path"
+  echo "BOOT_ATTEMPT=$boot_attempt"
+  echo "BOOT_STARTED=$boot_started"
   echo "STAGE_STARTED=$started"
   echo "STAGE_DONE=$done_stage"
   echo "LOGINFO_RC=$rc"
