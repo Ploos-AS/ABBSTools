@@ -170,12 +170,12 @@ The M4.2 contract is recorded in `docs/M4_2_DOORCHECK_CONTRACT.md`. Automated qu
 
 ### M5.1 — TCPInfo
 
-- [ ] Define a conservative source-backed device availability contract for `abbstcp.device`
+- [x] Define a conservative source-backed device availability contract for `abbstcp.device`
 - [ ] Implement `TCPInfo` without guessing socket state or undocumented device internals
 - [ ] Add static, native 68000 and deterministic runtime qualification
 - [ ] Qualify against live ABBS/`abbstcp.device` on intended AmigaOS 2.04 baseline
 
-Later M5 work may add Telnet/integration diagnostics only where a reliable device or protocol contract is established.
+The M5.1 contract is recorded in `docs/M5_1_TCPINFO_CONTRACT.md`. Later M5 work may add Telnet/integration diagnostics only where a reliable device or protocol contract is established.
 
 ## M6 — Optional observability
 
