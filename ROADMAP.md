@@ -188,14 +188,23 @@ The decision is recorded in `docs/M5_2_ABI_RESEARCH.md`. Deeper TCPInfo diagnost
 
 ## M6 — Optional observability
 
-Keep observability optional and non-invasive for classic systems. Candidate scope:
+### M6.1 — Metrics snapshot
 
-- Stable machine-readable output suitable for external collectors
-- Optional `Metrics` exporter/snapshot tool with stable `abbs_` metric names
-- Optional host-side exporter/bridge for Prometheus
-- Node availability, session, error and activity metrics where ABBS exposes reliable data
-- No mandatory TCP stack, daemon or Prometheus dependency on the Amiga itself
-- Preserve normal standalone Shell/ARexx operation when observability is unused
+- [x] Define stable low-cardinality `abbs_` metric namespace
+- [x] Implement read-only `Metrics NODE` using the qualified node adapter
+- [x] Keep the Amiga-side tool one-shot with no mandatory TCP stack or daemon
+- [x] Add static checks and native 68000 build wiring
+- [ ] Add deterministic FS-UAE + AROS runtime qualification
+- [ ] Qualify against live ABBS on intended AmigaOS 2.04 baseline
+
+The M6.1 contract is recorded in `docs/M6_1_METRICS_CONTRACT.md`.
+
+### M6.2 — Host-side Prometheus bridge
+
+- [ ] Define a host-side collector/exporter contract for one or more Amiga nodes
+- [ ] Keep Prometheus support optional and external to normal Amiga Shell/ARexx operation
+- [ ] Avoid high-cardinality labels and unqualified ABBS state
+- [ ] Add deterministic host-side qualification
 
 Prometheus support is optional at runtime, but M6 is part of the v0.1.0 suite/release gate.
 
