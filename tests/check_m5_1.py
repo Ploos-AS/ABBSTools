@@ -13,12 +13,15 @@ checks = {
     'CloseDevice on success': 'CloseDevice' in src,
     'message port allocation': 'CreateMsgPort' in src,
     'IORequest allocation': 'CreateIORequest' in src,
-    'warn on unavailable': 'AVAILABLE=NO' in src or 'available ? "YES" : "NO"' in src,
-    'stable open rc': 'OPEN_RC=' in src,
+    'warn on unavailable': 'emit_open_result("WARN", device, unit, "NO"' in src,
+    'stable open error': 'OPEN_ERROR=' in src,
+    'explicit open failure reason': 'DEVICE_OPEN_FAILED' in src,
+    'fatal setup remains explicit': 'LOCAL_SETUP_FAILED' in src,
     'no socket guessing': 'socket(' not in src and 'Socket(' not in src,
     'no telnet guessing': 'telnet' not in src.lower(),
-    'contract no socket state guess': 'does not claim socket state' in contract.lower() or 'must not claim socket state' in contract.lower(),
+    'contract no socket state guess': 'socket state' in contract.lower() and 'does not claim or infer' in contract.lower(),
     'contract device probe': 'OpenDevice' in contract,
+    'contract stable open error': 'OPEN_ERROR=' in contract,
     'make target planned': 'tcpinfo' in makefile.lower(),
 }
 
