@@ -159,12 +159,12 @@ Automated qualification evidence is recorded in `docs/M4_1_QUALIFICATION.md`.
 
 ### M4.2 — DoorCheck
 
-- [ ] Define a conservative validation contract without inventing a generic ABBS door registry or drop-file format
-- [ ] Implement `DoorCheck`
+- [x] Define a conservative validation contract without inventing a generic ABBS door registry or drop-file format
+- [x] Implement `DoorCheck`
 - [ ] Add static, native 68000 and deterministic runtime qualification
 - [ ] Qualify against live ABBS on intended AmigaOS 2.04 baseline
 
-ABBS-relevant drop-file inspection/validation remains deferred until a reliable source-backed contract is established.
+The M4.2 contract is recorded in `docs/M4_2_DOORCHECK_CONTRACT.md`. ABBS-relevant drop-file inspection/validation remains deferred until a reliable source-backed contract is established.
 
 ## M5 — TCP and remote-node diagnostics
 
