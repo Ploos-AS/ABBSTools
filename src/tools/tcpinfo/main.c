@@ -1,9 +1,9 @@
+#include <devices/serial.h>
 #include <exec/io.h>
 #include <exec/types.h>
 #include <proto/exec.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 #include "abbstools/common.h"
 
@@ -22,8 +22,8 @@ static int parse_unit(const char *s, ULONG *out)
     return 1;
 }
 
-static void emit_result(const char *status, const char *device, ULONG unit,
-                        int available, LONG open_rc)
+static void emit_common(const char *status, const char *device, ULONG unit,
+                        const char *available)
 {
     char num[32];
 
@@ -35,11 +35,26 @@ static void emit_result(const char *status, const char *device, ULONG unit,
     sprintf(num, "%lu", (unsigned long)unit);
     abt_puts(num);
     abt_puts("\nAVAILABLE=");
-    abt_puts(available ? "YES" : "NO");
-    abt_puts("\nOPEN_RC=");
-    sprintf(num, "%ld", (long)open_rc);
+    abt_puts(available);
+    abt_puts("\n");
+}
+
+static void emit_open_result(const char *status, const char *device, ULONG unit,
+                             const char *available, LONG open_error,
+                             const char *reason)
+{
+    char num[32];
+
+    emit_common(status, device, unit, available);
+    abt_puts("OPEN_ERROR=");
+    sprintf(num, "%ld", (long)open_error);
     abt_puts(num);
     abt_puts("\n");
+    if (reason) {
+        abt_puts("REASON=");
+        abt_puts(reason);
+        abt_puts("\n");
+    }
 }
 
 int main(int argc, char **argv)
@@ -47,7 +62,7 @@ int main(int argc, char **argv)
     const char *device = DEFAULT_DEVICE;
     ULONG unit = DEFAULT_UNIT;
     struct MsgPort *port = 0;
-    struct IORequest *io = 0;
+    struct IOExtSer *io = 0;
     LONG rc;
 
     if (argc > 3) {
@@ -70,29 +85,31 @@ int main(int argc, char **argv)
 
     port = CreateMsgPort();
     if (!port) {
-        emit_result("FATAL", device, unit, 0, -1);
+        emit_common("FATAL", device, unit, "UNKNOWN");
+        abt_puts("REASON=LOCAL_SETUP_FAILED\n");
         return ABBSTOOLS_RC_FATAL;
     }
 
-    io = CreateIORequest(port, sizeof(struct IORequest));
+    io = (struct IOExtSer *)CreateIORequest(port, sizeof(struct IOExtSer));
     if (!io) {
         DeleteMsgPort(port);
-        emit_result("FATAL", device, unit, 0, -1);
+        emit_common("FATAL", device, unit, "UNKNOWN");
+        abt_puts("REASON=LOCAL_SETUP_FAILED\n");
         return ABBSTOOLS_RC_FATAL;
     }
 
-    rc = OpenDevice((STRPTR)device, unit, io, 0);
+    rc = OpenDevice((STRPTR)device, unit, (struct IORequest *)io, 0);
     if (rc != 0) {
-        DeleteIORequest(io);
+        DeleteIORequest((struct IORequest *)io);
         DeleteMsgPort(port);
-        emit_result("WARN", device, unit, 0, rc);
+        emit_open_result("WARN", device, unit, "NO", rc, "DEVICE_OPEN_FAILED");
         return ABBSTOOLS_RC_WARN;
     }
 
-    CloseDevice(io);
-    DeleteIORequest(io);
+    CloseDevice((struct IORequest *)io);
+    DeleteIORequest((struct IORequest *)io);
     DeleteMsgPort(port);
 
-    emit_result("OK", device, unit, 1, 0);
+    emit_open_result("OK", device, unit, "YES", 0, 0);
     return ABBSTOOLS_RC_OK;
 }
